@@ -1,0 +1,30 @@
+[2026-04-02T16:54:13.225Z] SIGNUP ERROR: E11000 duplicate key error collection: queueless-campus.users index: email_1 dup key: { email: "lakksprojcert@gmail.com" }
+MongoServerError: E11000 duplicate key error collection: queueless-campus.users index: email_1 dup key: { email: "lakksprojcert@gmail.com" }
+    at InsertOneOperation.handleOk (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at tryOperation (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\execute_operation.js:217:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async executeOperation (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\execute_operation.js:80:16)
+    at async Collection.insertOne (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (C:\cprogram\Queueless-Campus\backend\node_modules\mongoose\lib\model.js:425:16)
+    at async model.save (C:\cprogram\Queueless-Campus\backend\node_modules\mongoose\lib\model.js:664:5)
+    at async file:///C:/cprogram/Queueless-Campus/backend/src/routes/authRoutes.js:49:5
+[2026-04-02T16:54:13.777Z] SIGNUP ERROR: E11000 duplicate key error collection: queueless-campus.users index: email_1 dup key: { email: "lakksprojcert@gmail.com" }
+MongoServerError: E11000 duplicate key error collection: queueless-campus.users index: email_1 dup key: { email: "lakksprojcert@gmail.com" }
+    at InsertOneOperation.handleOk (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at tryOperation (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\execute_operation.js:217:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async executeOperation (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\execute_operation.js:80:16)
+    at async Collection.insertOne (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (C:\cprogram\Queueless-Campus\backend\node_modules\mongoose\lib\model.js:425:16)
+    at async model.save (C:\cprogram\Queueless-Campus\backend\node_modules\mongoose\lib\model.js:664:5)
+    at async file:///C:/cprogram/Queueless-Campus/backend/src/routes/authRoutes.js:49:5
+[2026-04-03T11:29:01.015Z] SIGNUP ERROR: E11000 duplicate key error collection: queueless-campus.users index: email_1 dup key: { email: "lakksprojcert@gmail.com" }
+MongoServerError: E11000 duplicate key error collection: queueless-campus.users index: email_1 dup key: { email: "lakksprojcert@gmail.com" }
+    at InsertOneOperation.handleOk (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\insert.js:51:19)
+    at tryOperation (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\execute_operation.js:217:34)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async executeOperation (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\operations\execute_operation.js:80:16)
+    at async Collection.insertOne (C:\cprogram\Queueless-Campus\backend\node_modules\mongodb\lib\collection.js:154:16)
+    at async model.$__save (C:\cprogram\Queueless-Campus\backend\node_modules\mongoose\lib\model.js:425:16)
+    at async model.save (C:\cprogram\Queueless-Campus\backend\node_modules\mongoose\lib\model.js:664:5)
+    at async file:///C:/cprogram/Queueless-Campus/backend/src/routes/authRoutes.js:49:5

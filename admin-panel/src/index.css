@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-primary: #9A3412;
+  --color-brand-primary-button: #C2410C;
+  --color-brand-secondary-button: #FDBA74;
+  --color-brand-bg: #1C1917;
+  --color-brand-card: #292524;
+  --color-brand-text-primary: #FAFAF9;
+  --color-brand-text-secondary: #D6D3D1;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-brand-text-primary font-sans antialiased;
+  }
+}

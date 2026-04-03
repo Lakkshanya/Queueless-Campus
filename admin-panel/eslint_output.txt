@@ -1,0 +1,84 @@
+﻿
+C:\cprogram\Queueless-Campus\admin-panel\src\AdminDashboard.jsx
+  4:10  error  'useNavigate' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\CounterManagement.jsx
+  24:17  error  'logout' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u    no-unused-vars
+  25:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\StaffDashboard.jsx
+  66:14  error  'error' is defined but never used  no-unused-vars
+  77:14  error  'error' is defined but never used  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\constants\colors.js
+  12:1  error  'module' is not defined  no-undef
+
+C:\cprogram\Queueless-Campus\admin-panel\src\context\AuthContext.jsx
+  12:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  10 |     const storedUser = localStorage.getItem('admin_user');
+  11 |     if (storedUser) {
+> 12 |       setUser(JSON.parse(storedUser));
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  13 |     }
+  14 |     setLoading(false);
+  15 |   }, []);  react-hooks/set-state-in-effect
+  38:14  error  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-refresh/only-export-components
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\DocumentVerification.jsx
+  24:10  error  'filterStatus' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u     no-unused-vars
+  24:24  error  'setFilterStatus' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  67:14  error  'error' is defined but never used                                                                no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\NotificationControl.jsx
+  34:14  error  'error' is defined but never used  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\OTPVerify.jsx
+  83:14  error  'error' is defined but never used  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\ProfileCompletion.jsx
+  1:27  error  'useEffect' is defined but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\ProfileEdit.jsx
+  61:14  error  'error' is defined but never used  no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\RequirementManagement.jsx
+   69:11  error  'editingId' is not defined         no-undef
+   70:40  error  'editingId' is not defined         no-undef
+   75:7   error  'setEditingId' is not defined      no-undef
+   88:14  error  'error' is defined but never used  no-unused-vars
+   98:14  error  'error' is defined but never used  no-unused-vars
+  148:25  error  'setEditingId' is not defined      no-undef
+  269:20  error  'editingId' is not defined         no-undef
+  276:19  error  'setEditingId' is not defined      no-undef
+  432:20  error  'editingId' is not defined         no-undef
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\SectionManagement.jsx
+  23:11  error  'user' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  63:14  error  'error' is defined but never used                                                     no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\ServiceManagement.jsx
+  23:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  57:14  error  'error' is defined but never used                                                         no-unused-vars
+  67:14  error  'error' is defined but never used                                                         no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\StaffManagement.jsx
+  23:9   error  'navigate' is assigned a value but never used. Allowed unused vars must match /^[A-Z_]/u  no-unused-vars
+  61:14  error  'error' is defined but never used                                                         no-unused-vars
+  71:15  error  'error' is defined but never used                                                         no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\StudentAllocation.jsx
+  63:6   warning  React Hook useEffect has missing dependencies: 'fetchData' and 'navigate'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  80:14  error    'error' is defined but never used                                                                                              no-unused-vars
+
+C:\cprogram\Queueless-Campus\admin-panel\src\pages\StudentManagement.jsx
+  71:14  error  'error' is defined but never used  no-unused-vars
+
+Γ£û 35 problems (34 errors, 1 warning)
+
