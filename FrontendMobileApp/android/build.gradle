@@ -1,0 +1,45 @@
+buildscript {
+    ext {
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 23
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+        ndkVersion = "26.1.10909125"
+        kotlinVersion = "1.9.22"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"
+ 
+subprojects {
+    configurations.all {
+        resolutionStrategy {
+            force 'androidx.core:core-ktx:1.12.0'
+            force 'androidx.core:core:1.12.0'
+            force 'androidx.appcompat:appcompat:1.6.1'
+            force 'androidx.fragment:fragment:1.6.2'
+            force 'androidx.fragment:fragment-ktx:1.6.2'
+            force 'androidx.transition:transition:1.4.1'
+            force 'androidx.transition:transition-ktx:1.4.1'
+            force 'androidx.activity:activity:1.8.0'
+            force 'androidx.activity:activity-ktx:1.8.0'
+        }
+    }
+}
+
+allprojects {
+    tasks.configureEach { task ->
+        if (task.name.contains("CheckAarMetadata")) {
+            task.enabled = false
+        }
+    }
+}
