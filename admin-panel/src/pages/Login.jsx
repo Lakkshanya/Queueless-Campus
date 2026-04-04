@@ -149,7 +149,7 @@ const Login = () => {
                   type="text" 
                   value={captchaInput}
                   onChange={(e) => setCaptchaInput(e.target.value)}
-                  className="w-full h-full bg-[#1C1917] border border-stone-800 rounded-2xl px-5 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-center font-bold text-lg uppercase"
+                  className="w-full h-full bg-[#1C1917] border border-stone-800 rounded-2xl px-5 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-center font-bold text-lg"
                   placeholder="CODE"
                   required
                 />

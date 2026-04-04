@@ -320,7 +320,7 @@ const RequirementManagement = () => {
                     type="text"
                     required
                     placeholder="e.g. Identity Card"
-                    className="w-full bg-[#1F1D1B] border border-stone-800 rounded-3xl p-5 text-xs font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] transition placeholder-stone-800"
+                    className="w-full bg-[#1F1D1B] border border-stone-800 rounded-3xl p-5 text-xs font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] transition placeholder-stone-800"
                     value={formData.title}
                     onChange={(e) => setFormData({...formData, title: e.target.value})}
                   />
@@ -334,7 +334,7 @@ const RequirementManagement = () => {
                     type="text"
                     required
                     placeholder="e.g. document"
-                    className="w-full bg-[#1F1D1B] border border-stone-800 rounded-3xl p-5 text-xs font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] transition placeholder-stone-800"
+                    className="w-full bg-[#1F1D1B] border border-stone-800 rounded-3xl p-5 text-xs font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] transition placeholder-stone-800"
                     value={formData.type}
                     onChange={(e) => setFormData({...formData, type: e.target.value})}
                   />
@@ -348,7 +348,7 @@ const RequirementManagement = () => {
                 <textarea 
                   rows="4"
                   placeholder="Describe the requirement for students..."
-                  className="w-full bg-[#1F1D1B] border border-stone-800 rounded-3xl p-5 text-xs font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] transition placeholder-stone-800 resize-none leading-relaxed"
+                  className="w-full bg-[#1F1D1B] border border-stone-800 rounded-3xl p-5 text-xs font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] transition placeholder-stone-800 resize-none leading-relaxed"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
                 />
@@ -388,7 +388,7 @@ const RequirementManagement = () => {
                     <div className="space-y-2">
                        <label className="text-[8px] font-black text-stone-600 uppercase tracking-widest ml-2">Department</label>
                       <select 
-                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] [color-scheme:dark]"
+                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] [color-scheme:dark]"
                         value={formData.targetDepartment}
                         onChange={e => setFormData({...formData, targetDepartment: e.target.value})}
                       >
@@ -403,7 +403,7 @@ const RequirementManagement = () => {
                     <div className="space-y-2">
                        <label className="text-[8px] font-black text-stone-600 uppercase tracking-widest ml-2">Year of Study</label>
                       <select 
-                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412]"
+                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412]"
                         value={formData.targetYear}
                         onChange={e => setFormData({...formData, targetYear: e.target.value})}
                       >
@@ -417,7 +417,7 @@ const RequirementManagement = () => {
                     <div className="space-y-2">
                        <label className="text-[8px] font-black text-stone-600 uppercase tracking-widest ml-2">Assigned Section</label>
                       <select 
-                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412]"
+                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412]"
                         value={formData.targetSection}
                         onChange={e => setFormData({...formData, targetSection: e.target.value})}
                       >
@@ -431,7 +431,7 @@ const RequirementManagement = () => {
                        <label className="text-[8px] font-black text-stone-600 uppercase tracking-widest ml-2">Submission Deadline</label>
                       <input 
                         type="date"
-                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black uppercase tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] [color-scheme:dark]"
+                        className="w-full bg-[#1F1D1B] border border-stone-800 rounded-2xl p-4 text-[10px] font-black  tracking-widest text-[#FAFAF9] outline-none focus:border-[#9A3412] [color-scheme:dark]"
                         value={formData.deadline}
                         onChange={e => setFormData({...formData, deadline: e.target.value})}
                       />

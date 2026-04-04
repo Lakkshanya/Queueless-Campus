@@ -96,26 +96,26 @@ const ProfileScreen = () => {
             </Text>
           </View>
         )}
-        <View className=" px-3 py-1 rounded-full mt-2 border ">
-          <Text className="text-primary text-[10px] font-bold uppercase tracking-widest">
+        <View className="bg-primary/10 px-4 py-1.5 rounded-full mt-2 border border-primary/20">
+          <Text className="text-primary text-[10px] font-black uppercase tracking-[2px]">
             {user?.role || 'STUDENT'}
           </Text>
         </View>
       </View>
 
-      <View className="flex-row justify-between mb-8">
-        <View className="bg-card flex-1 p-4 rounded-xl items-center mr-2 border border-stone-800">
-          <Text className="text-primary text-xl font-bold">{stats.served}</Text>
-          <Text className="text-textSecondary text-[10px] uppercase">
-            Served
+      <View className="flex-row justify-between mb-8 gap-x-4">
+        <View className="bg-[#1C1917] flex-1 p-5 rounded-2xl items-center border border-stone-800 shadow-xl">
+          <Text className="text-primary text-3xl font-black tracking-tighter">{stats.served}</Text>
+          <Text className="text-stone-500 text-[10px] font-black uppercase tracking-widest mt-1">
+            Served Tokens
           </Text>
         </View>
-        <View className="bg-card flex-1 p-4 rounded-xl items-center ml-2 border border-stone-800">
-          <Text className="text-buttonSecondary text-xl font-bold">
+        <View className="bg-[#1C1917] flex-1 p-5 rounded-2xl items-center border border-stone-800 shadow-xl">
+          <Text className="text-buttonSecondary text-3xl font-black tracking-tighter">
             {stats.missed}
           </Text>
-          <Text className="text-textSecondary text-[10px] uppercase">
-            Missed
+          <Text className="text-stone-500 text-[10px] font-black uppercase tracking-widest mt-1">
+            Missed Turns
           </Text>
         </View>
       </View>
@@ -146,24 +146,24 @@ const ProfileScreen = () => {
           <TouchableOpacity
             key={i}
             onPress={() => item.screen && navigation.navigate(item.screen)}
-            className="bg-card rounded-xl p-4 flex-row items-center justify-between border border-stone-800 mb-4">
+            className="bg-[#1C1917] rounded-3xl p-5 flex-row items-center justify-between border border-stone-800 mb-4 active:scale-95 transition-transform shadow-lg">
             <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-background rounded-lg items-center justify-center mr-4">
+              <View className="w-12 h-12 bg-stone-900 rounded-full items-center justify-center border border-stone-800 mr-4 shadow-sm">
                 {item.icon}
               </View>
-              <Text className="text-textPrimary font-bold">{item.label}</Text>
+              <Text className="text-textPrimary font-bold text-[15px]">{item.label}</Text>
             </View>
             <ChevronRight color="#44403C" size={18} />
           </TouchableOpacity>
         ))}
 
         <TouchableOpacity
-          className=" rounded-xl p-4 flex-row items-center border mt-6"
+          className="bg-red-500/10 rounded-3xl p-5 flex-row items-center border border-red-500/20 mt-6 active:scale-95 transition-transform shadow-lg"
           onPress={handleLogout}>
-          <View className="w-10 h-10 bg-background rounded-lg items-center justify-center mr-4">
-            <LogOut color="#f87171" size={20} />
+          <View className="w-12 h-12 bg-stone-900 rounded-full items-center justify-center border border-stone-800 mr-4 shadow-sm">
+            <LogOut color="#ef4444" size={20} />
           </View>
-          <Text className="text-red-400 font-bold">Logout</Text>
+          <Text className="text-red-500 font-bold text-[15px]">Sign Out of Account</Text>
         </TouchableOpacity>
         <View className="h-10" />
       </View>

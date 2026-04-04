@@ -104,7 +104,7 @@ const RecordsScreen = () => {
 
       <View className="space-y-6 mb-12">
         {/* Enrollment Status Card */}
-        <View className="bg-card rounded-[32px] p-8 border border-stone-800 shadow-2xl relative overflow-hidden">
+        <View className="bg-[#1C1917] rounded-[32px] p-8 border border-stone-800 shadow-2xl relative overflow-hidden">
            <View className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
            <View className="flex-row justify-between items-center mb-6">
               <View className="w-12 h-12 bg-stone-900 rounded-2xl items-center justify-center border border-stone-800">
@@ -149,6 +149,36 @@ const RecordsScreen = () => {
            <Text className="text-stone-600 text-[10px] font-bold uppercase mt-4 tracking-widest leading-relaxed">
              {recordsData.academicProgress || 'All courses in current semester are tracked and verified.'}
            </Text>
+        </View>
+
+        {/* Current Semester Courses */}
+        <View className="bg-stone-900/50 rounded-[32px] p-8 border border-stone-800 shadow-xl">
+           <View className="flex-row items-center mb-6">
+              <View className="w-10 h-10 bg-primary/10 rounded-2xl items-center justify-center border border-primary/20">
+                 <Clock color="#C2410C" size={18} />
+              </View>
+              <Text className="text-textPrimary font-black ml-4 text-lg tracking-tight">Active Semester</Text>
+           </View>
+           <View className="space-y-4">
+              <View className="flex-row justify-between items-center bg-stone-900 p-4 rounded-2xl border border-stone-800/50">
+                 <View className="flex-1">
+                    <Text className="text-stone-500 text-[8px] font-black uppercase tracking-widest mb-1">CS 301</Text>
+                    <Text className="text-textPrimary font-bold text-sm tracking-tight">Data Structures</Text>
+                 </View>
+                 <View className="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                    <Text className="text-emerald-500 text-[9px] font-black uppercase tracking-widest">Enrolled</Text>
+                 </View>
+              </View>
+              <View className="flex-row justify-between items-center bg-stone-900 p-4 rounded-2xl border border-stone-800/50">
+                 <View className="flex-1">
+                    <Text className="text-stone-500 text-[8px] font-black uppercase tracking-widest mb-1">CS 302</Text>
+                    <Text className="text-textPrimary font-bold text-sm tracking-tight">Computer Networks</Text>
+                 </View>
+                 <View className="bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                    <Text className="text-emerald-500 text-[9px] font-black uppercase tracking-widest">Enrolled</Text>
+                 </View>
+              </View>
+           </View>
         </View>
 
         {/* Documents Snapshot */}

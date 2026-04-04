@@ -86,7 +86,7 @@ const ServiceSelection = () => {
           <TouchableOpacity
             key={service._id}
             disabled={service.status === 'maintenance'}
-            className={`bg-card rounded-2xl p-5 mb-5 border border-stone-800 ${
+            className={`bg-[#1C1917] rounded-[32px] p-6 mb-5 border border-stone-800 active:scale-95 transition-transform shadow-xl ${
               service.status === 'maintenance' ? 'opacity-50' : ''
             }`}
             onPress={() => handleServiceSelect(service)}>
@@ -165,12 +165,12 @@ const ServiceSelection = () => {
           </TouchableOpacity>
         ))}
         {services.length === 0 && !loading && (
-          <View className="mt-20 items-center bg-card/50 p-10 rounded-[40px] border border-stone-800 border-dashed">
-            <Info color="#44403C" size={64} />
+          <View className="mt-20 items-center bg-stone-900/50 p-10 rounded-[40px] border border-stone-800 border-dashed shadow-2xl">
+            <Info color="#78716C" size={64} />
             <Text className="text-textPrimary text-lg font-black mt-6 uppercase tracking-widest">
               No Services
             </Text>
-            <Text className="text-textSecondary text-xs mt-2 text-center leading-5 uppercase tracking-[2px]">
+            <Text className="text-textSecondary text-[10px] mt-2 text-center leading-5 uppercase tracking-[2px]">
               No active services found at this time. Please pull down to refresh.
             </Text>
           </View>

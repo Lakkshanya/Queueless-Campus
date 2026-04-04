@@ -21,6 +21,8 @@ import {
   History,
   ShieldCheck,
   GraduationCap,
+  Bell,
+  FileText,
 } from 'lucide-react-native';
 import api from '../../services/api';
 
@@ -31,6 +33,7 @@ const StudentDashboard = () => {
   const navigation = useNavigation<any>();
   const [refreshing, setRefreshing] = useState(false);
   const [services, setServices] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -38,12 +41,14 @@ const StudentDashboard = () => {
       return;
     }
     try {
-      const [tokenRes, servicesRes] = await Promise.all([
+      const [tokenRes, servicesRes, notifRes] = await Promise.all([
         api.get('/tokens/status'),
         api.get('/services'),
+        api.get('/notifications'),
       ]);
       dispatch(setReduxToken(tokenRes.data));
       setServices(servicesRes.data);
+      setNotifications(notifRes.data);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -113,39 +118,78 @@ const StudentDashboard = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Announcement Banner */}
+      {notifications.length > 0 && notifications[0] && (
+        <View className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-4 mb-6 flex-row items-center">
+          <Bell color="#C2410C" size={20} />
+          <View className="ml-3 flex-1">
+            <Text className="text-primary font-bold text-xs uppercase tracking-widest">{notifications[0].title}</Text>
+            <Text className="text-textSecondary text-xs mt-1" numberOfLines={2}>{notifications[0].message}</Text>
+          </View>
+        </View>
+      )}
+
+      {/* Quick Action Navigation */}
+      <View className="flex-row justify-between mb-8 gap-x-3">
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('ServiceSelection')}
+          className="flex-1 bg-stone-900 border border-stone-800 py-3 rounded-xl items-center justify-center active:scale-95 transition-all">
+          <Activity color="#C2410C" size={18} />
+          <Text className="text-textPrimary font-bold text-[10px] uppercase mt-2">Book Token</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => activeToken ? navigation.navigate('LiveQueue') : navigation.navigate('ServiceSelection')}
+          className="flex-1 bg-stone-900 border border-stone-800 py-3 rounded-xl items-center justify-center active:scale-95 transition-all">
+          <Users color="#f59e0b" size={18} />
+          <Text className="text-textPrimary font-bold text-[10px] uppercase mt-2">Live Queue</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('Documents')}
+          className="flex-1 bg-stone-900 border border-stone-800 py-3 rounded-xl items-center justify-center active:scale-95 transition-all">
+          <FileText color="#3b82f6" size={18} />
+          <Text className="text-textPrimary font-bold text-[10px] uppercase mt-2">Documents</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Active Token Card */}
       {activeToken ? (
-        <View className=" border rounded-2xl p-5 mb-8 ">
+        <TouchableOpacity 
+          onPress={() => navigation.navigate('LiveQueue')}
+          className="bg-[#1C1917] border border-stone-800 rounded-[32px] p-6 mb-8 relative overflow-hidden active:scale-95 transition-transform"
+        >
+          <View className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16" />
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-primary font-bold uppercase tracking-widest text-xs">
               Active Token
             </Text>
             <View
-              className={`bg-primary px-2 py-1 rounded ${
-                activeToken.status === 'serving' ? 'bg-green-600' : 'bg-primary'
+              className={`bg-primary px-3 py-1 rounded-full ${
+                activeToken.status === 'serving' ? 'bg-emerald-500/20' : 'bg-primary/20'
               }`}>
-              <Text className="text-white text-[10px] font-bold">
-                {activeToken.status === 'serving' ? 'IN PROGRESS' : 'WAITING'}
+              <Text className={`text-[10px] font-black uppercase tracking-widest ${
+                activeToken.status === 'serving' ? 'text-emerald-500' : 'text-primary'
+              }`}>
+                {activeToken.status === 'serving' ? 'In Progress' : 'Waiting'}
               </Text>
             </View>
           </View>
 
-          <View className="items-center py-2">
-            <Text className="text-textSecondary text-xs">Token Number</Text>
-            <Text className="text-textPrimary text-5xl font-extrabold my-1">
+          <View className="items-center py-4">
+            <Text className="text-stone-500 text-[10px] uppercase tracking-[0.3em]">Token Number</Text>
+            <Text className="text-textPrimary text-6xl font-black tracking-tighter my-2">
               {activeToken.number}
             </Text>
-            <View className="flex-row items-center mt-2">
+            <View className="flex-row items-center mt-2 bg-stone-800/50 px-3 py-1.5 rounded-full border border-stone-800">
               <Clock color="#C2410C" size={14} />
-              <Text className="text-textSecondary text-xs ml-1">
+              <Text className="text-textSecondary text-xs font-bold ml-1.5">
                 Est. Time: {activeToken.estimatedWaitTime || '--'} mins
               </Text>
             </View>
           </View>
 
-          <View className="flex-row justify-between mt-6 pt-4 border-t ">
+          <View className="flex-row justify-between mt-6 pt-6 border-t border-stone-800/50">
             <View className="items-center flex-1">
-              <Text className="text-textSecondary text-[10px] uppercase">
+              <Text className="text-stone-600 text-[9px] font-black uppercase tracking-widest mb-1">
                 Service
               </Text>
               <Text
@@ -154,8 +198,8 @@ const StudentDashboard = () => {
                 {activeToken.service?.name}
               </Text>
             </View>
-            <View className="items-center flex-1 border-x ">
-              <Text className="text-textSecondary text-[10px] uppercase">
+            <View className="items-center flex-1 border-x border-stone-800/50">
+              <Text className="text-stone-600 text-[9px] font-black uppercase tracking-widest mb-1">
                 Counter
               </Text>
               <Text className="text-textPrimary font-bold text-xs">
@@ -163,7 +207,7 @@ const StudentDashboard = () => {
               </Text>
             </View>
             <View className="items-center flex-1">
-              <Text className="text-textSecondary text-[10px] uppercase">
+              <Text className="text-stone-600 text-[9px] font-black uppercase tracking-widest mb-1">
                 Position
               </Text>
               <Text className="text-textPrimary font-bold text-xs">
@@ -171,16 +215,16 @@ const StudentDashboard = () => {
               </Text>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       ) : (
-        <View className="bg-card border border-stone-800 rounded-2xl p-8 mb-8 items-center justify-center">
-          <Text className="text-textSecondary text-sm mb-2">
-            You have no active tokens
+        <View className="bg-stone-900/50 border border-stone-800 border-dashed rounded-[32px] p-8 mb-8 items-center justify-center">
+          <Text className="text-textSecondary text-sm mb-4">
+            No active token found
           </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('ServiceSelection')}
-            className=" px-6 py-2 rounded-full border ">
-            <Text className="text-primary font-bold">Book a Service</Text>
+            className="bg-primary/10 px-6 py-3 rounded-full border border-primary/20 active:scale-95">
+            <Text className="text-primary font-bold text-xs uppercase tracking-widest">Book a Service</Text>
           </TouchableOpacity>
         </View>
       )}

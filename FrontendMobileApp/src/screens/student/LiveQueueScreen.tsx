@@ -154,93 +154,95 @@ const LiveQueueScreen = () => {
         }>
         {/* Token Highlights */}
         <View className="items-center mb-10">
-          <Text className="text-textSecondary text-xs uppercase tracking-[3px] mb-2">
+          <Text className="text-stone-500 text-[10px] font-black uppercase tracking-[4px] mb-4">
             Your Token
           </Text>
           <Animated.View
             style={{transform: [{scale: pulseAnim}]}}
-            className=" border-2 border-primary rounded-3xl px-8 py-4">
-            <Text className="text-primary text-5xl font-black">
+            className="bg-primary/10 border border-primary/30 rounded-full w-48 h-48 items-center justify-center shadow-2xl shadow-primary/20">
+            <Text className="text-primary text-6xl font-black tracking-tighter">
               {status?.token?.number || '---'}
             </Text>
+            <View className="absolute bottom-5 bg-stone-900 px-3 py-1 rounded-full border border-stone-800">
+              <Text className="text-primary text-[8px] font-black uppercase tracking-widest">Active</Text>
+            </View>
           </Animated.View>
         </View>
 
         {/* Live Status Board */}
-        <View className="bg-card rounded-3xl p-6 border border-stone-800 ">
-          <View className="flex-row justify-between mb-8">
+        <View className="bg-[#1C1917] rounded-[32px] p-8 border border-stone-800 shadow-2xl relative overflow-hidden">
+          <View className="absolute top-0 right-0 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl -mr-16 -mt-16" />
+          
+          <View className="flex-row justify-between mb-8 border-b border-stone-800/50 pb-6">
             <View>
-              <Text className="text-textSecondary text-[10px] uppercase">
+              <Text className="text-stone-500 text-[9px] font-black uppercase tracking-widest mb-1">
                 Now Serving
               </Text>
-              <Text className="text-buttonSecondary text-2xl font-bold">
+              <Text className="text-buttonSecondary text-4xl font-black tracking-tighter">
                 {status?.servingNow?.number || '---'}
               </Text>
             </View>
             <View className="items-end">
-              <Text className="text-textSecondary text-[10px] uppercase">
-                Service Counter
+              <Text className="text-stone-500 text-[9px] font-black uppercase tracking-widest mb-1">
+                Counter
               </Text>
               {status?.token?.counter?.status === 'paused' ? (
-                <Text className="text-red-400 text-sm font-bold uppercase">
-                  Paused
-                </Text>
+                <View className="bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20 mt-1">
+                  <Text className="text-red-500 text-[10px] font-black uppercase tracking-widest">
+                    Paused
+                  </Text>
+                </View>
               ) : (
-                <Text className="text-textPrimary text-2xl font-bold">
+                <Text className="text-textPrimary text-4xl font-black tracking-tighter">
                   {status?.token?.counter?.number || '...'}
                 </Text>
               )}
             </View>
           </View>
 
-          <View className="space-y-6">
-            <View className="flex-row items-center bg-background p-4 rounded-xl border border-stone-800">
-              <Users color="#9A3412" size={24} />
-              <View className="ml-4">
-                <Text className="text-textSecondary text-[10px] uppercase">
-                  Waiting Count
-                </Text>
-                <Text className="text-textPrimary text-lg font-bold">
-                  {status?.ahead ?? '--'} Students
-                </Text>
-              </View>
+          <View className="flex-row mb-6 gap-x-4">
+            <View className="flex-1 bg-stone-900/50 p-5 rounded-2xl border border-stone-800">
+              <Users color="#9A3412" size={24} className="mb-3" />
+              <Text className="text-stone-500 text-[9px] font-black uppercase tracking-widest">
+                Waiting List
+              </Text>
+              <Text className="text-textPrimary text-2xl font-black mt-1">
+                {status?.ahead ?? '--'} <Text className="text-stone-500 text-xs tracking-normal">ahead</Text>
+              </Text>
             </View>
 
-            <View className="flex-row items-center bg-background p-4 rounded-xl border border-stone-800">
-              <Clock color="#C2410C" size={24} />
-              <View className="ml-4">
-                <Text className="text-textSecondary text-[10px] uppercase">
-                  Estimated Time
-                </Text>
-                <Text className="text-textPrimary text-lg font-bold">
-                  {status?.wait ?? '--'} mins
-                </Text>
-              </View>
+            <View className="flex-1 bg-stone-900/50 p-5 rounded-2xl border border-stone-800">
+              <Clock color="#C2410C" size={24} className="mb-3" />
+              <Text className="text-stone-500 text-[9px] font-black uppercase tracking-widest">
+                Est. Time
+              </Text>
+              <Text className="text-textPrimary text-2xl font-black mt-1">
+                {status?.wait ?? '--'} <Text className="text-stone-500 text-xs tracking-normal">mins</Text>
+              </Text>
             </View>
           </View>
 
-          <View className="mt-8 p-4 rounded-xl flex-row items-center">
-            <ShieldAlert color="#FDBA74" size={20} />
-            <Text className="text-textSecondary text-xs ml-3">
-              We'll notify you when 5 students are ahead of you. Keep the app open for
-              live updates.
+          <View className="bg-orange-500/10 p-4 rounded-2xl flex-row items-center border border-orange-500/20 mt-2">
+            <ShieldAlert color="#FDBA74" size={24} />
+            <Text className="text-orange-400/90 text-[10px] font-medium leading-4 ml-3 flex-1">
+              We'll instantly notify you when your turn is approaching. Keep the app open for live reliable updates.
             </Text>
           </View>
         </View>
 
         {/* Actions */}
-        <View className="flex-row space-x-4 mt-8 mb-10">
+        <View className="flex-row space-x-4 mt-8 mb-10 gap-x-4">
           <TouchableOpacity
             onPress={fetchStatus}
-            className="flex-1 bg-card border border-stone-800 py-4 rounded-xl items-center flex-row justify-center">
-            <RefreshCw color="#D6D3D1" size={18} />
-            <Text className="text-textSecondary font-bold ml-2">Refresh</Text>
+            className="flex-1 bg-stone-900 border border-stone-800 py-4 rounded-xl items-center flex-row justify-center active:scale-95 transition-transform">
+            <RefreshCw color="#D6D3D1" size={16} />
+            <Text className="text-textPrimary font-bold text-[10px] uppercase tracking-widest ml-2">Sync</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleCancel}
-            className="flex-1 border py-4 rounded-xl items-center flex-row justify-center">
-            <XCircle color="#f87171" size={18} />
-            <Text className="text-red-400 font-bold ml-2">Cancel</Text>
+            className="flex-1 bg-red-500/10 border border-red-500/20 py-4 rounded-xl items-center flex-row justify-center active:scale-95 transition-transform">
+            <XCircle color="#f87171" size={16} />
+            <Text className="text-red-500 font-bold text-[10px] uppercase tracking-widest ml-2">Drop Position</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

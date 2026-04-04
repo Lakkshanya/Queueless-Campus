@@ -192,7 +192,7 @@ const ProfileCompletion = () => {
                     name="adminRoleType"
                     value={formData.adminRoleType}
                     onChange={handleChange}
-                    className="w-full bg-[#1C1917] border border-stone-800 p-4 pl-12 rounded-2xl focus:border-[#9A3412] outline-none transition text-[#FAFAF9] appearance-none cursor-pointer text-sm font-bold uppercase"
+                    className="w-full bg-[#1C1917] border border-stone-800 p-4 pl-12 rounded-2xl focus:border-[#9A3412] outline-none transition text-[#FAFAF9] appearance-none cursor-pointer text-sm font-bold "
                     required
                   >
                     <option value="sub">Staff Administrator</option>

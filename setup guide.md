@@ -112,6 +112,20 @@ The mobile app is built with React Native CLI.
 
 ---
 
+## 🗄️ 4. Version Control & Contributions
+
+This project is configured as a **monorepo**. To ensure a clean contribution process:
+
+1. **Single Git Repository**: The entire project uses a single `.git` directory at the absolute root folder (`Queueless-Campus/`). Ensure there are no nested `.git` folders in any of the subdirectories (such as `FrontendMobileApp/`).
+2. **Global `.gitignore`**: The root `.gitignore` is pre-configured to handle all dependencies comprehensively. When you push code, it will automatically ignore:
+   - `node_modules/` across all projects
+   - Environment variables (`.env`, `.env.local`)
+   - Logs, caches, and crash reports (`npm-debug.log`, etc.)
+   - Platform-specific build artifacts (`.expo/`, `android/app/build/`, `ios/Pods/`, `.next`, `dist/`)
+   - Sensitive Firebase configurations (`backend/config/*.json`)
+3. **Environment Secrets**: Never commit sensitive configuration files. Provide `.env.example` equivalents instead.
+
+---
 
 ## 💡 Troubleshooting
 
