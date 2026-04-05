@@ -68,21 +68,13 @@ export const getDashboardStats = async (req, res) => {
       }
     ]);
 
-    // REAL Pending Documents Count
-    const pendingDocsCount = await User.aggregate([
-      { $unwind: "$documents" },
-      { $match: { "documents.status": "pending" } },
-      { $count: "count" }
-    ]);
-
     res.json({
       totalTokensToday: dashboardStats.totalTokensToday,
       completedToday: dashboardStats.completedToday,
       pendingToday: dashboardStats.pendingToday,
       avgWaitTime,
       serviceStats,
-      activeCounters: await Counter.countDocuments({ status: 'active' }),
-      pendingDocuments: pendingDocsCount[0]?.count || 0
+      activeCounters: await Counter.countDocuments({ status: 'active' })
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -108,29 +100,8 @@ export const getRecentActivity = async (req, res) => {
       timestamp: t.updatedAt
     }));
 
-    // 2. Fetch recent user document activities
-    const usersWithRecentDocs = await User.find({ 'documents.0': { $exists: true } })
-      .sort({ 'documents.uploadedAt': -1 })
-      .limit(10)
-      .lean();
-
-    const docActivities = [];
-    usersWithRecentDocs.forEach(u => {
-      u.documents.forEach(doc => {
-        docActivities.push({
-          id: `DOC-${doc._id.toString().slice(-5).toUpperCase()}`,
-          module: 'Docs',
-          desc: `Ref: ${doc._id.toString().slice(-4).toUpperCase()}`,
-          sub: u.name,
-          status: doc.status.charAt(0).toUpperCase() + doc.status.slice(1),
-          color: doc.status === 'verified' ? 'text-green-500' : (doc.status === 'pending' ? 'text-amber-500' : 'text-red-500'),
-          timestamp: doc.uploadedAt
-        });
-      });
-    });
-
     // Combine and sort
-    const allActivities = [...tokenActivities, ...docActivities]
+    const allActivities = tokenActivities
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
       .slice(0, 10);
 

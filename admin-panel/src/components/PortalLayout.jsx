@@ -6,9 +6,7 @@ import {
   Layers, 
   Users, 
   Database, 
-  ClipboardList, 
   Bell, 
-  ShieldCheck, 
   BarChart3, 
   LogOut,
   User,
@@ -32,7 +30,6 @@ const PortalLayout = () => {
     { to: '/admin/counters', icon: <Layers size={18} />, label: 'Counters', roles: ['admin'] },
     { to: '/admin/services', icon: <Database size={18} />, label: 'Services', roles: ['admin'] },
     { to: '/admin/staff', icon: <Users size={18} />, label: 'Staff Management', roles: ['admin'] },
-    { to: '/admin/documents', icon: <ShieldCheck size={18} />, label: 'Document Control', roles: ['admin'] },
     { to: '/admin/monitoring', icon: <Monitor size={18} />, label: 'Monitoring', roles: ['admin'] },
     { to: '/admin/analytics', icon: <Activity size={18} />, label: 'Analytics', roles: ['admin'] },
     { to: '/admin/notifications', icon: <Bell size={18} />, label: 'Notifications', roles: ['admin'] },
@@ -41,8 +38,6 @@ const PortalLayout = () => {
     // Staff Sidebar
     { to: '/staff/dashboard', icon: <BarChart3 size={18} />, label: 'Dashboard', roles: ['staff'] },
     { to: '/staff/queue', icon: <Activity size={18} />, label: 'Queue Handling', roles: ['staff'] },
-    { to: '/staff/students', icon: <Users size={18} />, label: 'Student Management', roles: ['staff'] },
-    { to: '/staff/documents', icon: <ShieldCheck size={18} />, label: 'Document Verification', roles: ['staff'] },
     { to: '/staff/notifications', icon: <Bell size={18} />, label: 'Notifications', roles: ['staff'] },
     { to: '/staff/profile', icon: <User size={18} />, label: 'Profile', roles: ['staff'] },
   ];
@@ -51,7 +46,6 @@ const PortalLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#1F1D1B] text-[#FAFAF9] font-sans flex text-[10px]">
-      {/* Sidebar Navigation */}
       <aside className="w-72 bg-[#1C1917] border-r border-stone-800/50 flex flex-col fixed inset-y-0 z-50">
         <div className="p-8">
           <Link to={user.role === 'admin' ? '/admin/dashboard' : '/staff/dashboard'} className="flex items-center gap-3 mb-10 group">
@@ -107,9 +101,7 @@ const PortalLayout = () => {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <main className="flex-1 ml-72">
-        {/* Global System Header */}
         <header className="px-12 py-6 border-b border-stone-800/20 flex justify-between items-center bg-[#1F1D1B]/80 backdrop-blur-xl sticky top-0 z-40">
            <div className="flex items-center gap-4">
               <DashboardStatus />

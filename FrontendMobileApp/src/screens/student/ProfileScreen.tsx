@@ -4,7 +4,6 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  Image,
   Alert,
   RefreshControl,
 } from 'react-native';
@@ -13,12 +12,11 @@ import {clearAuth} from '../../store/slices/authSlice';
 import {useNavigation} from '@react-navigation/native';
 import {
   User,
-  History,
   Settings,
   LogOut,
   ChevronRight,
-  Award,
   Edit,
+  GraduationCap,
 } from 'lucide-react-native';
 import api from '../../services/api';
 
@@ -72,7 +70,6 @@ const ProfileScreen = () => {
           tintColor="#C2410C"
         />
       }>
-      {/* ... header remains same ... */}
       <View className="items-center mb-8">
         <View className="relative">
           <View className="w-24 h-24 bg-stone-800 rounded-full border-2 border-primary items-center justify-center overflow-hidden">
@@ -87,16 +84,34 @@ const ProfileScreen = () => {
         <Text className="text-textPrimary text-2xl font-bold mt-4">
           {user?.name}
         </Text>
-        <Text className="text-textSecondary text-sm">{user?.email}</Text>
+        <Text className="text-textSecondary text-sm mb-2">{user?.email}</Text>
+        
         {user?.role === 'student' && (
-          <View className="items-center mt-3">
-            <Text className="text-stone-500 text-[10px] items-center uppercase font-black tracking-[4px]">
-              {user?.collegeId || '---'} • {user?.department || 'N/A'} • Year{' '}
-              {user?.yearOfStudy || '-'}
-            </Text>
+          <View className="items-center mt-2 px-4">
+            <View className="flex-row items-center mt-3 bg-stone-900/50 px-3 py-1 rounded-full border border-stone-800">
+              <GraduationCap color="#C2410C" size={12} />
+              <Text className="text-textSecondary text-[10px] font-bold ml-2 uppercase">
+                CGPA: {user?.cgpa || '0.00'}
+              </Text>
+            </View>
           </View>
         )}
-        <View className="bg-primary/10 px-4 py-1.5 rounded-full mt-2 border border-primary/20">
+
+        {user?.role === 'staff' && (
+          <View className="items-center mt-2 px-4">
+             <Text className="text-stone-500 text-[10px] text-center uppercase font-black tracking-[3px] leading-4">
+              Staff ID: {user?.staffId || 'STF-001'}
+            </Text>
+            <View className="flex-row items-center mt-3 bg-stone-900/50 px-4 py-1 rounded-full border border-stone-800">
+              <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
+              <Text className="text-textSecondary text-[10px] font-bold uppercase">
+                {user?.position || 'Academic Staff'}
+              </Text>
+            </View>
+          </View>
+        )}
+
+        <View className="bg-primary/10 px-4 py-1.5 rounded-full mt-4 border border-primary/20">
           <Text className="text-primary text-[10px] font-black uppercase tracking-[2px]">
             {user?.role || 'STUDENT'}
           </Text>
@@ -105,38 +120,23 @@ const ProfileScreen = () => {
 
       <View className="flex-row justify-between mb-8 gap-x-4">
         <View className="bg-[#1C1917] flex-1 p-5 rounded-2xl items-center border border-stone-800 shadow-xl">
-          <Text className="text-primary text-3xl font-black tracking-tighter">{stats.served}</Text>
+          <Text className="text-primary text-3xl font-black tracking-tighter">{stats.served || 0}</Text>
           <Text className="text-stone-500 text-[10px] font-black uppercase tracking-widest mt-1">
-            Served Tokens
+            Processed
           </Text>
         </View>
         <View className="bg-[#1C1917] flex-1 p-5 rounded-2xl items-center border border-stone-800 shadow-xl">
           <Text className="text-buttonSecondary text-3xl font-black tracking-tighter">
-            {stats.missed}
+            {stats.missed || 0}
           </Text>
           <Text className="text-stone-500 text-[10px] font-black uppercase tracking-widest mt-1">
-            Missed Turns
+            Missed
           </Text>
         </View>
       </View>
 
       <View className="space-y-4">
         {[
-          {
-            label: 'My History',
-            icon: <History color="#D6D3D1" size={20} />,
-            screen: 'History',
-          },
-          {
-            label: 'Academic Records',
-            icon: <Award color="#D6D3D1" size={20} />,
-            screen: 'Records',
-          },
-          {
-            label: 'Document Records',
-            icon: <User color="#D6D3D1" size={20} />,
-            screen: 'Documents',
-          },
           {
             label: 'Account Settings',
             icon: <Settings color="#D6D3D1" size={20} />,

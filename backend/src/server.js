@@ -10,10 +10,8 @@ import counterRoutes from './routes/counterRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import connectDB from './config/db.js';
 import serviceRoutes from './routes/serviceRoutes.js';
-import sectionRoutes from './routes/sectionRoutes.js';
-import staffRoutes from './routes/staffRoutes.js';
+import queueRoutes from './routes/queueRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import requirementRoutes from './routes/requirementRoutes.js';
 import { connectRedis } from './config/redis.js';
 import path from 'path';
 
@@ -47,10 +45,8 @@ app.use('/api/tokens', tokenRoutes);
 app.use('/api/counters', counterRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/services', serviceRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/sections', sectionRoutes);
+app.use('/api/queue', queueRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/requirements', requirementRoutes);
 
 // Health check endpoint for mobile diagnostics
 app.get('/api/ping', (req, res) => {

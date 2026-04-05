@@ -14,19 +14,11 @@ import SignupScreen from './src/screens/auth/SignupScreen';
 import OTPScreen from './src/screens/auth/OTPScreen';
 import ForgotPasswordScreen from './src/screens/auth/ForgotPasswordScreen';
 import ResetPasswordScreen from './src/screens/auth/ResetPasswordScreen';
-import TokenBooking from './src/screens/student/TokenBooking';
 import LiveQueueScreen from './src/screens/student/LiveQueueScreen';
-import HistoryScreen from './src/screens/student/HistoryScreen';
 import StudentTabs from './src/navigation/StudentTabs';
 import StaffTabs from './src/navigation/StaffTabs';
 import EditProfileScreen from './src/screens/student/EditProfileScreen';
-import RecordsScreen from './src/screens/student/RecordsScreen';
-import DocumentsScreen from './src/screens/student/DocumentsScreen';
-import SectionInfoScreen from './src/screens/student/SectionInfoScreen';
-import SectionStudentList from './src/screens/staff/SectionStudentList';
-import StudentDetailVerification from './src/screens/staff/StudentDetailVerification';
 import SettingsScreen from './src/screens/student/SettingsScreen';
-import DocumentViewer from './src/screens/common/DocumentViewer';
 import {ActivityIndicator, View, Alert, Text, SafeAreaView, TouchableOpacity, Modal, TextInput} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {setAuth, setLoading} from './src/store/slices/authSlice';
@@ -79,13 +71,6 @@ const AppContent = () => {
       fcmService.register();
       socketService.connect(token);
       socketService.joinUser(user._id);
-
-      socketService.onDocumentStatusUpdated((data) => {
-         Alert.alert(
-           'Document Protocol Updated',
-           `Your submission status has changed to: ${data.status.toUpperCase()}. ${data.comments ? `Remarks: ${data.comments}` : ''}`
-         );
-      });
     }
 
     return () => {
@@ -195,25 +180,12 @@ const AppContent = () => {
           ) : user.role === 'staff' ? (
             <>
               <Stack.Screen name="StaffHome" component={StaffTabs} />
-              <Stack.Screen
-                name="SectionStudentList"
-                component={SectionStudentList}
-              />
-              <Stack.Screen
-                name="StudentDetailVerification"
-                component={StudentDetailVerification}
-              />
               <Stack.Screen name="Settings" component={SettingsScreen} />
             </>
           ) : (
             <>
               <Stack.Screen name="StudentHome" component={StudentTabs} />
-              <Stack.Screen name="TokenBooking" component={TokenBooking} />
               <Stack.Screen name="LiveQueue" component={LiveQueueScreen} />
-              <Stack.Screen name="Records" component={RecordsScreen} />
-              <Stack.Screen name="Documents" component={DocumentsScreen} />
-              <Stack.Screen name="SectionInfo" component={SectionInfoScreen} />
-              <Stack.Screen name="History" component={HistoryScreen} />
               <Stack.Screen name="EditProfile" component={EditProfileScreen} />
               <Stack.Screen name="Settings" component={SettingsScreen} />
             </>
@@ -229,7 +201,6 @@ const AppContent = () => {
         )}
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-        <Stack.Screen name="DocumentViewer" component={DocumentViewer} />
       </Stack.Navigator>
     </SafeAreaView>
   );

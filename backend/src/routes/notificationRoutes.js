@@ -1,11 +1,17 @@
 import express from 'express';
-import { getNotifications, markAsRead, broadcastNotification } from '../controllers/notificationController.js';
-import { auth } from '../middleware/auth.js';
+import { 
+    getNotifications, 
+    markAsRead, 
+    broadcastNotification, 
+    notifyAdmin 
+} from '../controllers/notificationController.js';
+import { auth, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.get('/', auth, getNotifications);
 router.put('/:id/read', auth, markAsRead);
-router.post('/broadcast', auth, broadcastNotification);
+router.post('/send', auth, authorize('admin'), broadcastNotification);
+router.post('/admin/notify', auth, authorize('staff'), notifyAdmin);
 
 export default router;

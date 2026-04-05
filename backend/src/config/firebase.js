@@ -6,7 +6,7 @@ dotenv.config();
 import path from 'path';
 import fs from 'fs';
 
-const serviceAccountPath = path.join(process.cwd(), 'config', 'queuelesscampus-6246c-firebase-adminsdk-fbsvc-7fc783d062.json');
+const serviceAccountPath = path.join(process.cwd(), 'config', 'queuelesscampus-6246c-firebase-adminsdk-fbsvc-9543351b31.json');
 
 try {
   const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));

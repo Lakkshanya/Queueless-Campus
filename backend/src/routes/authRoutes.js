@@ -2,13 +2,8 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-import Notification from '../models/Notification.js';
 import { generateOTP, sendOTPEmail, sendSuccessEmail } from '../utils/otpService.js';
-import { sendNotification } from '../utils/notificationService.js';
 import { auth } from '../middleware/auth.js';
-import { upload } from '../middleware/upload.js';
-import Section from '../models/Section.js';
-import * as userDocController from '../controllers/userDocumentController.js';
 
 import fs from 'fs';
 
@@ -23,19 +18,15 @@ const router = express.Router();
 router.post('/signup', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    console.log(`[DEBUG] Signup started for: ${email}`);
     
     const existingUser = await User.findOne({ email });
-    console.log(`[DEBUG] Existing user check: ${existingUser ? 'Found' : 'Not found'}`);
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    console.log(`[DEBUG] Password hashed`);
     const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-    console.log(`[DEBUG] OTP generated: ${otp}`);
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); 
 
     const user = new User({
       name,
@@ -47,11 +38,8 @@ router.post('/signup', async (req, res) => {
     });
 
     await user.save();
-    console.log(`[DEBUG] User saved to MongoDB`);
     
-    console.log(`[DEBUG] Sending OTP email...`);
     const emailSent = await sendOTPEmail(email, otp);
-    console.log(`[DEBUG] Email sent status: ${emailSent}`);
     if (!emailSent) {
       return res.status(500).json({ message: 'Failed to send verification email' });
     }
@@ -60,11 +48,7 @@ router.post('/signup', async (req, res) => {
   } catch (error) {
     console.error('SIGNUP CRITICAL ERROR:', error);
     logError(`SIGNUP ERROR: ${error.message}\n${error.stack}`);
-    res.status(500).json({ 
-      message: 'Signup failed', 
-      error: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined 
-    });
+    res.status(500).json({ message: 'Signup failed', error: error.message });
   }
 });
 
@@ -114,7 +98,6 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password, captcha } = req.body;
 
-    // Basic Captcha check (placeholder for now as frontend will generate it)
     if (!captcha) {
       return res.status(400).json({ message: 'Captcha is required' });
     }
@@ -151,15 +134,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Get Current User Profile
-router.get('/me', auth, async (req, res) => {
+// GET /profile alias for /me
+router.get(['/me', '/profile'], auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id)
-      .select('-password -otp')
-      .populate({
-        path: 'section',
-        populate: { path: 'facultyAdvisor', select: 'name' }
-      });
+    const user = await User.findById(req.user.id).select('-password -otp');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json(user);
   } catch (error) {
@@ -167,42 +145,47 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
-// Complete Profile
-router.post('/complete-profile', auth, async (req, res) => {
+// PUT /profile/update alias for complete-profile
+router.put('/profile/update', auth, async (req, res) => {
   try {
     const userId = req.user.id;
     const updates = req.body;
-
-    // Remove sensitive fields if any
     delete updates.password;
     delete updates.role;
     delete updates.isVerified;
-    delete updates.email; // Email should not be changed here
-
+    delete updates.email;
     updates.profileCompleted = true;
-
     const user = await User.findByIdAndUpdate(userId, updates, { new: true }).select('-password -otp');
-    
     res.status(200).json({ message: 'Profile updated successfully', user });
   } catch (error) {
     res.status(500).json({ message: 'Profile update failed', error: error.message });
   }
 });
 
-// Forgot Password - Request OTP
+// Legacy POST alias for backward compatibility
+router.post('/complete-profile', auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const updates = req.body;
+        delete updates.password;
+        updates.profileCompleted = true;
+        const user = await User.findByIdAndUpdate(userId, updates, { new: true }).select('-password -otp');
+        res.status(200).json({ message: 'Profile updated successfully', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Profile update failed', error: error.message });
+    }
+});
+
+// Forgot Password
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-
     if (!user) return res.status(404).json({ message: 'User not found' });
-
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
     user.otp = { code: otp, expiry: otpExpiry };
     await user.save();
-
     await sendOTPEmail(email, otp);
     res.status(200).json({ message: 'Password reset OTP sent to email', email });
   } catch (error) {
@@ -215,57 +198,30 @@ router.post('/reset-password', async (req, res) => {
   try {
     const { email, otp, newPassword } = req.body;
     const user = await User.findOne({ email });
-
     if (!user) return res.status(404).json({ message: 'User not found' });
-
     if (user.otp.code !== otp || user.otp.expiry < new Date()) {
       return res.status(400).json({ message: 'Invalid or expired OTP' });
     }
-
     user.password = await bcrypt.hash(newPassword, 12);
     user.otp = undefined;
     await user.save();
-
     await sendSuccessEmail(email, 'Your password has been successfully reset.');
-
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {
     res.status(500).json({ message: 'Reset failed', error: error.message });
   }
 });
 
-// Update Student Academic Records (Admin & Staff)
-router.put('/student/:id/records', auth, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin' && req.user.role !== 'staff') {
-      return res.status(403).json({ message: 'Access denied. Authorized personnel only.' });
-    }
-    
-    const { academicRecords } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { academicRecords },
-      { new: true }
-    ).select('-password');
-    
-    res.status(200).json({ message: 'Student records updated', user });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to update records', error: error.message });
-  }
-});
-
-// Get all staff members
+// GET /staff (Admin/Core requirement)
 router.get('/staff', auth, async (req, res) => {
   try {
-    const staff = await User.find({ role: 'staff' }, 'name email _id isVerified');
+    const staff = await User.find({ role: 'staff' }, 'name email _id isVerified department position');
     res.status(200).json(staff);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch staff', error: error.message });
   }
 });
 
-
-// Update FCM Token
 router.post('/fcm-token', auth, async (req, res) => {
   try {
     const { fcmToken } = req.body;
@@ -275,54 +231,5 @@ router.post('/fcm-token', auth, async (req, res) => {
     res.status(500).json({ message: 'Failed to update FCM token', error: error.message });
   }
 });
-
-// Get all students (Admin only)
-router.get('/students', auth, async (req, res) => {
-  try {
-    const students = await User.find({ role: 'student' }).select('-password -otp');
-    res.status(200).json(students);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch students', error: error.message });
-  }
-});
-
-// Upload Document (Student only)
-router.post('/upload-document', auth, upload.single('document'), async (req, res) => {
-  try {
-    if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-
-    const { name } = req.body;
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-
-    // Store local path (serving it via static middleware later)
-    const fileUrl = `/uploads/${req.file.filename}`;
-    
-    user.documents.push({ name, url: fileUrl, status: 'pending' });
-    await user.save();
-
-    res.status(200).json({ 
-      message: 'Document added to vault', 
-      documents: user.documents,
-      fileUrl
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Upload failed', error: error.message });
-  }
-});
-
-// --- New Document Control Routes ---
-
-// Student: Get my targeted and global requirements
-router.get('/documents/requirements', auth, userDocController.getMyRequirements);
-
-// Student: Upload a document for a specific requirement
-router.post('/documents/upload', auth, userDocController.uploadDocument);
-
-// Staff: Get pending documents for sections/departments
-router.get('/documents/pending', auth, userDocController.getPendingDocuments);
-
-// Staff: Verify or Reject a student document
-router.post('/documents/verify', auth, userDocController.verifyDocument);
 
 export default router;

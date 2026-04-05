@@ -20,11 +20,12 @@ export const markAsRead = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const broadcastNotification = async (req, res) => {
   try {
-    const { title, message, targetRole } = req.body; // targetRole: 'student', 'staff', or 'all'
+    const { title, message, targetRole } = req.body; 
     
-    const query = targetRole === 'all' ? {} : { role: targetRole };
+    const query = (targetRole === 'all' || !targetRole) ? {} : { role: targetRole };
     const users = await User.find(query).select('_id');
 
     const notifications = users.map(u => ({
@@ -36,12 +37,37 @@ export const broadcastNotification = async (req, res) => {
 
     await Notification.insertMany(notifications);
 
-    // Send push notifications (async)
     users.forEach(u => {
       sendNotification(u._id.toString(), title, message, { type: 'broadcast' });
     });
 
     res.json({ message: `Broadcast sent to ${users.length} users` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const notifyAdmin = async (req, res) => {
+  try {
+    const { message } = req.body;
+    const admins = await User.find({ role: 'admin' }).select('_id');
+    
+    if (admins.length === 0) return res.status(404).json({ message: 'No admins found' });
+
+    const notifications = admins.map(a => ({
+      user: a._id,
+      title: `Staff Alert from ${req.user.name}`,
+      message,
+      type: 'staff_alert'
+    }));
+
+    await Notification.insertMany(notifications);
+
+    admins.forEach(a => {
+      sendNotification(a._id.toString(), `Staff Alert from ${req.user.name}`, message, { type: 'staff_alert' });
+    });
+
+    res.json({ message: 'Admin notified successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,32 +1,27 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {LayoutDashboard, Users, User, Bell, ClipboardList} from 'lucide-react-native';
+import {LayoutDashboard, User, Bell, ClipboardList} from 'lucide-react-native';
 import StaffDashboard from '../screens/staff/StaffDashboard';
-import SectionDashboard from '../screens/staff/SectionDashboard';
 import NotificationsScreen from '../screens/student/NotificationsScreen';
 import ProfileScreen from '../screens/student/ProfileScreen';
-import DocumentVerificationList from '../screens/staff/DocumentVerificationList';
+import QueueHandlingScreen from '../screens/staff/QueueHandlingScreen';
 
 const Tab = createBottomTabNavigator();
 
 const StaffTabs = () => {
   const getTabBarIcon = (route: any) => ({color, size}: any) => {
-    if (route.name === 'Counter') {
-      return <LayoutDashboard size={size} color={color} />;
+    switch (route.name) {
+      case 'Dashboard':
+        return <LayoutDashboard size={size} color={color} />;
+      case 'Queue Handling':
+        return <ClipboardList size={size} color={color} />;
+      case 'Notifications':
+        return <Bell size={size} color={color} />;
+      case 'Profile':
+        return <User size={size} color={color} />;
+      default:
+        return null;
     }
-    if (route.name === 'Documents') {
-      return <ClipboardList size={size} color={color} />;
-    }
-    if (route.name === 'My Section') {
-      return <Users size={size} color={color} />;
-    }
-    if (route.name === 'Notifications') {
-      return <Bell size={size} color={color} />;
-    }
-    if (route.name === 'Profile') {
-      return <User size={size} color={color} />;
-    }
-    return null;
   };
 
   return (
@@ -51,11 +46,10 @@ const StaffTabs = () => {
         },
         tabBarIcon: getTabBarIcon(route),
       })}>
-      <Tab.Screen name="Counter" component={StaffDashboard} options={{tabBarLabel: 'QUEUE'}} />
-      <Tab.Screen name="Documents" component={DocumentVerificationList} options={{tabBarLabel: 'VERIFY'}} />
-      <Tab.Screen name="My Section" component={SectionDashboard} options={{tabBarLabel: 'SECTION'}} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} options={{tabBarLabel: 'ALERTS'}} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{tabBarLabel: 'ID'}} />
+      <Tab.Screen name="Dashboard" component={StaffDashboard} />
+      <Tab.Screen name="Queue Handling" component={QueueHandlingScreen} />
+      <Tab.Screen name="Notifications" component={NotificationsScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 };

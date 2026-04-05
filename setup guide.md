@@ -53,7 +53,7 @@ The backend serves as the core API and manages real-time updates via Socket.io.
    CAPTCHA_SECRET=campus_smart_token_2024
    ```
 4. **Firebase Configuration**:
-   - Ensure the server account JSON file is placed at `backend/config/queuelesscampus-6246c-firebase-adminsdk-fbsvc-7fc783d062.json`.
+   - Ensure the server account JSON file is placed at `backend/config/queuelesscampus-6246c-firebase-adminsdk-fbsvc-9543351b31.json`.
    - *Note: If this file is missing, FCM notifications will be disabled.*
 5. **Start the server**:
    ```bash

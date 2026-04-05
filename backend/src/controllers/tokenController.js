@@ -3,6 +3,7 @@ import Counter from '../models/Counter.js';
 import Service from '../models/Service.js';
 import Sequence from '../models/Sequence.js';
 import redisClient from '../config/redis.js';
+import Notification from '../models/Notification.js';
 
 export const bookToken = async (req, res) => {
   try {
@@ -45,7 +46,7 @@ export const bookToken = async (req, res) => {
 
     await newToken.save();
 
-    // Invalidate Redis cache for this student's active token
+    // Invalidate Redis cache
     await redisClient.del(`active_token:${studentId}`);
 
     // Update Counter workload
@@ -57,7 +58,81 @@ export const bookToken = async (req, res) => {
     io.emit('tokenBooked', newToken);
     io.to(assignedCounter._id.toString()).emit('queueUpdated', { counterId: assignedCounter._id });
 
+    // Auto-generate Notification
+    await Notification.create({
+      user: studentId,
+      title: 'Token Booked',
+      message: `Token ${tokenNumber} has been successfully booked for ${service.name}.`,
+      type: 'info'
+    });
+
     res.status(201).json(newToken);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const startToken = async (req, res) => {
+  try {
+    const { tokenId } = req.body;
+    const token = await Token.findById(tokenId).populate('student').populate('service');
+    if (!token) return res.status(404).json({ message: 'Token not found' });
+
+    token.status = 'serving';
+    await token.save();
+
+    // Notify Socket
+    const io = req.app.get('io');
+    io.to(token.student._id.toString()).emit('tokenStarted', { 
+        tokenId: token._id, 
+        message: 'Your turn has arrived! Please proceed to the counter.' 
+    });
+
+    // Auto-generate Notification
+    await Notification.create({
+      user: token.student._id,
+      title: 'Now Serving',
+      message: `Your turn for ${token.service.name} has started. Please proceed to the counter.`,
+      type: 'alert'
+    });
+
+    res.json({ message: 'Service started', token });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const completeToken = async (req, res) => {
+  try {
+    const { tokenId } = req.body;
+    const token = await Token.findById(tokenId).populate('student').populate('service').populate('counter');
+    if (!token) return res.status(404).json({ message: 'Token not found' });
+
+    token.status = 'completed';
+    await token.save();
+
+    // Update Counter workload
+    if (token.counter) {
+        const counter = await Counter.findById(token.counter._id);
+        if (counter && counter.workload > 0) {
+            counter.workload -= 1;
+            await counter.save();
+        }
+    }
+
+    // Notify Socket
+    const io = req.app.get('io');
+    io.to(token.student._id.toString()).emit('tokenCompleted', { tokenId: token._id });
+
+    // Auto-generate Notification
+    await Notification.create({
+      user: token.student._id,
+      title: 'Service Completed',
+      message: `Thank you. Your session for ${token.service.name} is complete.`,
+      type: 'success'
+    });
+
+    res.json({ message: 'Service completed', token });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -68,21 +143,13 @@ export const getStudentStatus = async (req, res) => {
     const studentId = req.user.id;
     const { id } = req.params;
     
-    // Try to get from Redis first (only for active session check)
-    if (!id) {
-      const cachedToken = await redisClient.get(`active_token:${studentId}`);
-      if (cachedToken) {
-        return res.json(JSON.parse(cachedToken));
-      }
-    }
-
     const query = id ? { _id: id } : { student: studentId, status: { $in: ['waiting', 'serving'] } };
     const token = await Token.findOne(query)
-      .populate('service', 'name prefix')
+      .populate('service', 'name prefix estimatedTimePerToken')
       .populate({
         path: 'counter',
         select: 'number status',
-        populate: { path: 'services' }
+        populate: { path: 'staff', select: 'name' }
       })
       .sort({ bookedAt: -1 });
     
@@ -90,31 +157,21 @@ export const getStudentStatus = async (req, res) => {
 
     // Calculate queue metrics
     const ahead = await Token.countDocuments({
-      counter: token.counter._id,
+      counter: token.counter?._id,
       status: 'waiting',
       bookedAt: { $lt: token.bookedAt }
     });
 
-    const servingNow = await Token.findOne({
-      counter: token.counter._id,
-      status: 'processing'
-    }).select('number');
-
-    const result = {
+    res.json({
       token,
       ahead,
-      wait: ahead * (token.service?.estimatedTimePerToken || 10),
-      servingNow: servingNow || { number: 'None' }
-    };
-
-    // Cache for 1 minute
-    await redisClient.setEx(`active_token:${studentId}`, 60, JSON.stringify(result));
-
-    res.json(result);
+      wait: ahead * (token.service?.estimatedTimePerToken || 10)
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const getHistory = async (req, res) => {
   try {
     const tokens = await Token.find({ 
