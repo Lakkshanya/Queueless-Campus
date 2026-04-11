@@ -6,7 +6,7 @@ import counterRoutes from './routes/counterRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import requirementRoutes from './routes/requirementRoutes.js';
+
 
 const app = express();
 

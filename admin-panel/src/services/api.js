@@ -10,7 +10,7 @@ api.interceptors.request.use((config) => {
   const savedUrl = localStorage.getItem('serverUrl');
   
   // Set the dynamic URL from Sync
-  config.baseURL = savedUrl || 'https://queueless-campus-default.trycloudflare.com/api';
+  config.baseURL = savedUrl || 'http://localhost:8989/api';
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

@@ -53,7 +53,7 @@ const ServiceManagement = () => {
       if (editingId) {
         await api.put(`/services/${editingId}`, formData);
       } else {
-        await api.post('/services', formData);
+        await api.post('/services/create', formData);
       }
       setIsModalOpen(false);
       setEditingId(null);
@@ -119,7 +119,7 @@ const ServiceManagement = () => {
               placeholder="FILTER SERVICES..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#1C1917] border border-stone-800 p-5 pl-14 rounded-3xl focus:border-orange-600 outline-none transition text-[10px] font-black uppercase tracking-widest text-white placeholder-stone-700 shadow-inner"
+              className="w-full bg-[#1C1917] border border-stone-800 p-5 pl-14 rounded-3xl focus:border-orange-600 outline-none transition text-[10px] font-black tracking-widest text-white placeholder-stone-700 shadow-inner"
             />
           </div>
           <button 
@@ -239,7 +239,7 @@ const ServiceManagement = () => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-stone-950/90 backdrop-blur-md flex items-center justify-center p-6 z-[100] animate-in fade-in duration-300">
           <div className="bg-[#1C1917] w-full max-w-xl rounded-[4rem] p-12 border border-stone-800 shadow-[0_50px_100px_rgba(0,0,0,0.5)] relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600 opacity-[0.05] blur-3xl" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-orange-600 opacity-[0.05] blur-3xl pointer-events-none" />
             
             <div className="flex justify-between items-center mb-12">
               <div>
@@ -267,7 +267,7 @@ const ServiceManagement = () => {
                     value={formData.name}
                     placeholder="e.g. FINANCE HUB"
                     onChange={e => setFormData({...formData, name: e.target.value})}
-                    className="w-full bg-stone-900 border border-stone-800 rounded-[1.8rem] p-6 text-xs font-black uppercase tracking-widest text-white outline-none focus:border-orange-600 transition placeholder-stone-800 shadow-inner"
+                    className="w-full bg-stone-900 border border-stone-800 rounded-[1.8rem] p-6 text-xs font-black tracking-widest text-white outline-none focus:border-orange-600 transition placeholder-stone-800 shadow-inner"
                     required
                   />
                 </div>
@@ -280,7 +280,7 @@ const ServiceManagement = () => {
                     value={formData.prefix}
                     placeholder="e.g. FIN"
                     onChange={e => setFormData({...formData, prefix: e.target.value})}
-                    className="w-full bg-stone-900 border border-stone-800 rounded-[1.8rem] p-6 text-xs font-black uppercase tracking-widest text-white outline-none focus:border-orange-600 transition placeholder-stone-800 shadow-inner"
+                    className="w-full bg-stone-900 border border-stone-800 rounded-[1.8rem] p-6 text-xs font-black tracking-widest text-white outline-none focus:border-orange-600 transition placeholder-stone-800 shadow-inner"
                   />
                 </div>
               </div>
@@ -312,7 +312,7 @@ const ServiceManagement = () => {
                   value={formData.description}
                   placeholder="Describe the operational scope of this service branch..."
                   onChange={e => setFormData({...formData, description: e.target.value})}
-                  className="w-full bg-stone-900 border border-stone-800 rounded-[2.5rem] p-8 text-xs font-black uppercase tracking-widest text-white outline-none focus:border-orange-600 transition h-40 placeholder-stone-800 resize-none shadow-inner leading-relaxed"
+                  className="w-full bg-stone-900 border border-stone-800 rounded-[2.5rem] p-8 text-xs font-black tracking-widest text-white outline-none focus:border-orange-600 transition h-40 placeholder-stone-800 resize-none shadow-inner leading-relaxed"
                 />
               </div>
 

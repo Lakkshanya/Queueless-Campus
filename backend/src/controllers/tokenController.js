@@ -196,3 +196,25 @@ export const getTokenStats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getAdminTokenStats = async (req, res) => {
+  try {
+    const totalTokens = await Token.countDocuments();
+    const servedTokens = await Token.countDocuments({ status: 'completed' });
+    const waitingTokens = await Token.countDocuments({ status: 'waiting' });
+    const servingTokens = await Token.countDocuments({ status: 'serving' });
+    const missedTokens = await Token.countDocuments({ status: 'cancelled' });
+    
+    // Recent 10 tokens
+    const recentTokens = await Token.find()
+      .populate('service', 'name prefix')
+      .populate('student', 'name')
+      .populate('counter', 'number')
+      .sort({ bookedAt: -1 })
+      .limit(10);
+
+    res.json({ totalTokens, servedTokens, waitingTokens, servingTokens, missedTokens, recentTokens });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

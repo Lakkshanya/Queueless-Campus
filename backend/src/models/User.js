@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
     expiry: Date
   },
   assignedCounter: { type: mongoose.Schema.Types.ObjectId, ref: 'Counter' },
+  assignedServices: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Service' }],
   fcmToken: { type: String, default: null },
   createdAt: { type: Date, default: Date.now }
 });

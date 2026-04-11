@@ -2,6 +2,7 @@ import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import Service from '../models/Service.js';
 import { generateOTP, sendOTPEmail, sendSuccessEmail } from '../utils/otpService.js';
 import { auth } from '../middleware/auth.js';
 
@@ -215,10 +216,31 @@ router.post('/reset-password', async (req, res) => {
 // GET /staff (Admin/Core requirement)
 router.get('/staff', auth, async (req, res) => {
   try {
-    const staff = await User.find({ role: 'staff' }, 'name email _id isVerified department position');
+    const staff = await User.find({ role: 'staff' }, 'name email _id isVerified department position assignedServices assignedCounter')
+      .populate('assignedServices', 'name prefix description')
+      .populate('assignedCounter', 'number status');
     res.status(200).json(staff);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch staff', error: error.message });
+  }
+});
+
+// POST /assign-services (Admin assigns services to staff)
+router.post('/assign-services', auth, async (req, res) => {
+  try {
+    const { staffId, serviceIds } = req.body;
+    const staffMember = await User.findById(staffId);
+    if (!staffMember || staffMember.role !== 'staff') {
+      return res.status(404).json({ message: 'Staff member not found' });
+    }
+    staffMember.assignedServices = serviceIds;
+    await staffMember.save();
+    const updated = await User.findById(staffId)
+      .populate('assignedServices', 'name prefix description')
+      .populate('assignedCounter', 'number status');
+    res.status(200).json({ message: 'Services assigned successfully', staff: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to assign services', error: error.message });
   }
 });
 
@@ -229,6 +251,82 @@ router.post('/fcm-token', auth, async (req, res) => {
     res.status(200).json({ message: 'FCM token updated' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to update FCM token', error: error.message });
+  }
+});
+
+// POST /create-staff (Admin registers a new staff)
+router.post('/create-staff', auth, async (req, res) => {
+  try {
+    const { name, email, department, role } = req.body;
+    
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash('staff123', 12);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      department,
+      role: role || 'staff',
+      isVerified: false,
+    });
+
+    await user.save();
+    
+    res.status(201).json({ message: 'Staff created successfully', user });
+  } catch (error) {
+    res.status(500).json({ message: 'Staff creation failed', error: error.message });
+  }
+});
+
+// POST /verify-staff (Admin verify/unverify staff)
+router.post('/verify-staff', auth, async (req, res) => {
+  try {
+    const { staffId, isVerified } = req.body;
+    const staffMember = await User.findById(staffId);
+    if (!staffMember) {
+       return res.status(404).json({ message: 'Staff not found' });
+    }
+    
+    staffMember.isVerified = isVerified;
+    await staffMember.save();
+
+    res.status(200).json({ message: 'Staff verification updated', isVerified });
+  } catch (error) {
+    res.status(500).json({ message: 'Update failed', error: error.message });
+  }
+});
+
+// DELETE /staff/:id (Admin deletes staff)
+router.delete('/staff/:id', auth, async (req, res) => {
+  try {
+    const staffId = req.params.id;
+    await User.findByIdAndDelete(staffId);
+    res.status(200).json({ message: 'Staff deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Deletion failed', error: error.message });
+  }
+});
+
+// POST /assign-counter (Admin assigns a terminal/counter to staff)
+router.post('/assign-counter', auth, async (req, res) => {
+  try {
+    const { staffId, counterId } = req.body;
+    const staffMember = await User.findById(staffId);
+    if (!staffMember || staffMember.role !== 'staff') {
+       return res.status(404).json({ message: 'Staff not found' });
+    }
+    
+    staffMember.assignedCounter = counterId;
+    await staffMember.save();
+
+    res.status(200).json({ message: 'Counter assignment updated' });
+  } catch (error) {
+    res.status(500).json({ message: 'Counter assignment failed', error: error.message });
   }
 });
 

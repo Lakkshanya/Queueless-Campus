@@ -19,12 +19,17 @@ import {
 const LiveMonitoring = () => {
   const { user } = useAuth();
   const [counters, setCounters] = useState([]);
+  const [tokenStats, setTokenStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchMonitoringData = async () => {
     try {
-      const response = await api.get('/counters');
-      setCounters(response.data);
+      const [countersRes, statsRes] = await Promise.all([
+        api.get('/counters'),
+        api.get('/tokens/admin/stats')
+      ]);
+      setCounters(countersRes.data);
+      setTokenStats(statsRes.data);
     } catch (error) {
       console.error('Error fetching monitoring data:', error);
     } finally {
@@ -81,7 +86,7 @@ const LiveMonitoring = () => {
               
               <div className="flex justify-between items-start mb-12 relative z-10">
                 <div className="w-20 h-20 bg-stone-900 border border-stone-800 rounded-[2rem] flex items-center justify-center text-[#FAFAF9] group-hover:text-[#9A3412] transition-colors shadow-inner">
-                   <span className="text-3xl font-black tracking-tighter">{counter.counterNumber.toString().padStart(2, '0')}</span>
+                   <span className="text-3xl font-black tracking-tighter">{(counter.number || 0).toString().padStart(2, '0')}</span>
                 </div>
                 <div className="text-right">
                   <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-[9px] font-black uppercase tracking-widest ${
@@ -176,6 +181,82 @@ const LiveMonitoring = () => {
               </div>
            </div>
         </div>
+
+        {/* Token Statistics Section */}
+        {tokenStats && (
+          <div className="mt-8 mb-16 bg-[#1C1917] p-12 rounded-[4rem] border border-stone-800/50 relative overflow-hidden">
+             <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 opacity-[0.03] blur-[150px] pointer-events-none" />
+             <div className="mb-10 relative z-10">
+                 <h2 className="text-3xl font-black uppercase tracking-tighter text-white">Token Analytics</h2>
+                 <p className="text-[10px] uppercase tracking-widest text-stone-600 mt-2 font-black">System-wide Token Metrics</p>
+             </div>
+             
+             <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12 relative z-10">
+                <div className="bg-stone-900/50 p-6 rounded-3xl border border-stone-800/50">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500 mb-2">Total Tokens</p>
+                    <p className="text-3xl font-black text-white">{tokenStats.totalTokens}</p>
+                </div>
+                <div className="bg-stone-900/50 p-6 rounded-3xl border border-stone-800/50">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500 mb-2">Served</p>
+                    <p className="text-3xl font-black text-green-500">{tokenStats.servedTokens}</p>
+                </div>
+                <div className="bg-stone-900/50 p-6 rounded-3xl border border-stone-800/50">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500 mb-2">Serving</p>
+                    <p className="text-3xl font-black text-[#9A3412]">{tokenStats.servingTokens}</p>
+                </div>
+                <div className="bg-stone-900/50 p-6 rounded-3xl border border-stone-800/50">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500 mb-2">Waiting</p>
+                    <p className="text-3xl font-black text-blue-500">{tokenStats.waitingTokens}</p>
+                </div>
+                <div className="bg-stone-900/50 p-6 rounded-3xl border border-stone-800/50">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-stone-500 mb-2">Cancelled</p>
+                    <p className="text-3xl font-black text-red-500">{tokenStats.missedTokens}</p>
+                </div>
+             </div>
+
+             <div className="bg-stone-900/80 rounded-[2.5rem] border border-stone-800/50 p-8 shadow-inner overflow-x-auto relative z-10">
+                 <p className="text-[10px] uppercase font-black tracking-widest text-stone-400 mb-6 px-4">Recent Token Activity</p>
+                 <table className="w-full text-left min-w-[800px]">
+                     <thead>
+                         <tr className="border-b border-stone-800/40 opacity-70">
+                             <th className="px-4 py-4 text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Token ID</th>
+                             <th className="px-4 py-4 text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Student</th>
+                             <th className="px-4 py-4 text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Service</th>
+                             <th className="px-4 py-4 text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Terminal</th>
+                             <th className="px-4 py-4 text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Status</th>
+                             <th className="px-4 py-4 text-[9px] font-black text-stone-500 uppercase tracking-[0.2em]">Time Issued</th>
+                         </tr>
+                     </thead>
+                     <tbody className="divide-y divide-stone-800/20">
+                         {tokenStats.recentTokens.map(t => (
+                             <tr key={t._id} className="hover:bg-stone-800/20 transition-colors group/row">
+                                 <td className="px-4 py-4 text-xs font-black text-white">{t.number}</td>
+                                 <td className="px-4 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">{t.student?.name || 'Unknown'}</td>
+                                 <td className="px-4 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">{t.service?.name || '-'}</td>
+                                 <td className="px-4 py-4 text-[10px] font-black text-stone-400 uppercase tracking-widest">{t.counter ? `TERM #${t.counter.number}` : 'Unassigned'}</td>
+                                 <td className="px-4 py-4">
+                                     <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest border shadow-sm ${
+                                         t.status === 'completed' ? 'bg-green-500/10 text-green-500 border-green-500/20' : 
+                                         t.status === 'serving' ? 'bg-[#9A3412]/10 text-[#9A3412] border-[#9A3412]/20' : 
+                                         t.status === 'waiting' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
+                                         'bg-red-500/10 text-red-500 border-red-500/20'
+                                     }`}>
+                                         {t.status}
+                                     </span>
+                                 </td>
+                                 <td className="px-4 py-4 text-[10px] font-black text-stone-500 uppercase tracking-widest">{new Date(t.bookedAt).toLocaleTimeString()}</td>
+                             </tr>
+                         ))}
+                         {tokenStats.recentTokens.length === 0 && (
+                             <tr>
+                               <td colSpan="6" className="text-center py-8 text-[10px] text-stone-600 font-bold uppercase tracking-widest">No recent token activity</td>
+                             </tr>
+                         )}
+                     </tbody>
+                 </table>
+             </div>
+          </div>
+        )}
       </div>
     </div>
   );
