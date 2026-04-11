@@ -45,8 +45,8 @@ const PortalLayout = () => {
   const filteredLinks = navLinks.filter(link => link.roles.includes(user.role));
 
   return (
-    <div className="min-h-screen bg-[#1F1D1B] text-[#FAFAF9] font-sans flex text-[10px]">
-      <aside className="w-72 bg-[#1C1917] border-r border-stone-800/50 flex flex-col fixed inset-y-0 z-50">
+    <div className="h-screen w-full bg-[#1F1D1B] text-[#FAFAF9] font-sans flex text-[10px] overflow-hidden">
+      <aside className="w-72 h-full bg-[#1C1917] border-r border-stone-800/50 flex flex-col flex-shrink-0 z-50 overflow-y-auto custom-scrollbar relative">
         <div className="p-8">
           <Link to={user.role === 'admin' ? '/admin/dashboard' : '/staff/dashboard'} className="flex items-center gap-3 mb-10 group">
             <div className="w-10 h-10 bg-[#9A3412] rounded-xl flex items-center justify-center shadow-lg shadow-orange-950/20 rotate-3 group-hover:rotate-0 transition-transform">
@@ -101,7 +101,7 @@ const PortalLayout = () => {
         </div>
       </aside>
 
-      <main className="flex-1 ml-72">
+      <main className="flex-1 min-w-0 overflow-y-auto custom-scrollbar relative bg-[#1F1D1B]">
         <header className="px-12 py-6 border-b border-stone-800/20 flex justify-between items-center bg-[#1F1D1B]/80 backdrop-blur-xl sticky top-0 z-40">
            <div className="flex items-center gap-4">
               <DashboardStatus />
@@ -125,6 +125,12 @@ const PortalLayout = () => {
             <Outlet />
         </div>
       </main>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .custom-scrollbar::-webkit-scrollbar { width: 14px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1C1917; border-left: 1px solid rgba(255,255,255,0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #44403C; border: 4px solid #1C1917; border-radius: 20px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9A3412; }
+      `}} />
     </div>
   );
 };

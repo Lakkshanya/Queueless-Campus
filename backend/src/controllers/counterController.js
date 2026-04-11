@@ -58,7 +58,7 @@ export const assignStaff = async (req, res) => {
 
 export const getCounters = async (req, res) => {
   try {
-    const counters = await Counter.find().populate('staff', 'name').populate('service', 'name');
+    const counters = await Counter.find().populate('staff', 'name').populate('services', 'name');
     res.json(counters);
   } catch (error) {
     res.status(500).json({ message: error.message });

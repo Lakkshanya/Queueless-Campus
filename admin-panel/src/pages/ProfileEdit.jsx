@@ -143,7 +143,7 @@ const ProfileEdit = () => {
                     value={formData[field.name]}
                     disabled={field.disabled}
                     onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
-                    className={`w-full bg-[#1C1917] border border-stone-800 rounded-2xl py-4 px-6 text-xs font-black uppercase tracking-widest text-[#FAFAF9] outline-none transition-all placeholder-stone-800 ${field.disabled ? 'opacity-50 cursor-not-allowed' : 'focus:border-[#9A3412] group-hover:border-stone-700'}`}
+                    className={`w-full bg-[#1C1917] border border-stone-800 rounded-2xl py-4 px-6 text-xs font-black tracking-widest text-[#FAFAF9] outline-none transition-all placeholder-stone-800 ${field.disabled ? 'opacity-50 cursor-not-allowed' : 'focus:border-[#9A3412] group-hover:border-stone-700'}`}
                    />
                 </div>
              </div>

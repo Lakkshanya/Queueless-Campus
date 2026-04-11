@@ -5,7 +5,8 @@ import {
     completeToken, 
     getStudentStatus, 
     getHistory, 
-    getTokenStats 
+    getTokenStats,
+    getAdminTokenStats 
 } from '../controllers/tokenController.js';
 import { auth } from '../middleware/auth.js';
 
@@ -18,5 +19,6 @@ router.get('/status', auth, getStudentStatus);
 router.get('/status/:id', auth, getStudentStatus);
 router.get('/history', auth, getHistory);
 router.get('/stats', auth, getTokenStats);
+router.get('/admin/stats', auth, getAdminTokenStats);
 
 export default router;

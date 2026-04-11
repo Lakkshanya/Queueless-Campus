@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
-  User, 
-  Mail, 
-  Lock, 
-  ShieldCheck, 
+import {
+  User,
+  Mail,
+  Lock,
+  ShieldCheck,
   ChevronRight,
-  Info 
+  Info,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const Signup = () => {
@@ -17,6 +19,8 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -24,8 +28,9 @@ const Signup = () => {
       alert('Passwords do not match');
       return;
     }
-    // Pass form data to Role Selection
-    navigate('/roles', { state: { signupData: formData } });
+    // Pass form data to Role Selection (exclude confirmPassword - backend doesn't need it)
+    const { confirmPassword: _, ...dataForSignup } = formData;
+    navigate('/roles', { state: { signupData: dataForSignup } });
   };
 
   return (
@@ -33,7 +38,7 @@ const Signup = () => {
       <div className="max-w-md w-full bg-[#292524] rounded-[40px] p-12 border border-stone-800 shadow-2xl relative overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-[#9A3412] opacity-10 blur-[80px]"></div>
-        
+
         <div className="text-center mb-10 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-[#9A3412]/10 rounded-2xl mb-6 border border-[#9A3412]/20 shadow-inner">
             <User className="text-[#9A3412]" size={32} />
@@ -50,10 +55,10 @@ const Signup = () => {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <User className="text-stone-500 group-focus-within:text-[#9A3412] transition-colors" size={18} />
               </div>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full bg-[#1C1917] border border-stone-800 rounded-2xl pl-12 pr-5 py-4 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-sm"
                 placeholder="Identity Name"
                 required
@@ -68,10 +73,10 @@ const Signup = () => {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail className="text-stone-500 group-focus-within:text-[#9A3412] transition-colors" size={18} />
               </div>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full bg-[#1C1917] border border-stone-800 rounded-2xl pl-12 pr-5 py-4 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-sm"
                 placeholder="name@campus.com"
                 required
@@ -86,14 +91,21 @@ const Signup = () => {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="text-stone-500 group-focus-within:text-[#9A3412] transition-colors" size={18} />
               </div>
-              <input 
-                type="password" 
+              <input
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-                className="w-full bg-[#1C1917] border border-stone-800 rounded-2xl pl-12 pr-5 py-4 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-sm"
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                className="w-full bg-[#1C1917] border border-stone-800 rounded-2xl pl-12 pr-12 py-4 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-sm"
                 placeholder="••••••••"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-stone-500 hover:text-[#9A3412] transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
@@ -104,14 +116,21 @@ const Signup = () => {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <ShieldCheck className="text-stone-500 group-focus-within:text-[#9A3412] transition-colors" size={18} />
               </div>
-              <input 
-                type="password" 
+              <input
+                type={showConfirmPassword ? "text" : "password"}
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
-                className="w-full bg-[#1C1917] border border-stone-800 rounded-2xl pl-12 pr-5 py-4 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-sm"
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                className="w-full bg-[#1C1917] border border-stone-800 rounded-2xl pl-12 pr-12 py-4 text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all placeholder-stone-700 text-sm"
                 placeholder="••••••••"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-stone-500 hover:text-[#9A3412] transition-colors"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
@@ -122,14 +141,14 @@ const Signup = () => {
               <span className="text-[#9A3412] text-[10px] font-black ml-2 uppercase tracking-widest">Portal Rules</span>
             </div>
             <p className="text-[#D6D3D1] text-[9px] leading-relaxed opacity-60">
-              • Official campus credentials only.<br/>
-              • Authorized staff and administrators only.<br/>
-              • All activities are recorded for security.<br/>
+              • Official campus credentials only.<br />
+              • Authorized staff and administrators only.<br />
+              • All activities are recorded for security.<br />
               • Multi-factor authentication is required.
             </p>
           </div>
 
-          <button 
+          <button
             type="submit"
             className="w-full bg-[#9A3412] hover:bg-[#C2410C] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-950/20 uppercase tracking-widest text-[11px] mt-6 flex items-center justify-center gap-2 group transform active:scale-95"
           >
@@ -140,22 +159,22 @@ const Signup = () => {
 
         <div className="mt-10 text-center relative z-10 flex flex-col gap-4">
           <p className="text-[#D6D3D1] text-[10px] font-bold uppercase tracking-widest opacity-60">
-            Already have an account? 
+            Already have an account?
             <Link to="/login" className="text-[#9A3412] font-black ml-2 hover:opacity-80 transition-opacity">Sign In</Link>
           </p>
           <div className="h-[1px] w-12 bg-stone-800 mx-auto"></div>
 
           {/* SYNC SERVER BUTTON: The "Actual Rectification" for the Web */}
-          <button 
+          <button
             type="button"
             onClick={() => {
               const name = prompt('Type the 4-word tunnel name from your terminal (e.g. mold-farms-sandwich):');
               if (name) {
-                 const clean = name.trim().toLowerCase();
-                 localStorage.setItem('serverUrl', `https://${clean}.trycloudflare.com/api`);
-                 localStorage.setItem('portalUrl', `https://${clean}.trycloudflare.com`);
-                 alert('Server Synced! Refreshing...');
-                 window.location.reload();
+                const clean = name.trim().toLowerCase();
+                localStorage.setItem('serverUrl', `https://${clean}.trycloudflare.com/api`);
+                localStorage.setItem('portalUrl', `https://${clean}.trycloudflare.com`);
+                alert('Server Synced! Refreshing...');
+                window.location.reload();
               }
             }}
             className="text-[10px] text-stone-500 hover:text-[#9A3412] font-black uppercase tracking-tighter transition-colors"

@@ -71,6 +71,8 @@ const CounterManagement = () => {
     fetchData();
   }, []);
 
+  const navigate = useNavigate();
+
   const handleCreateCounter = async () => {
     if (!newCounter.number) return alert('Counter Number is required.');
     try {
@@ -81,6 +83,8 @@ const CounterManagement = () => {
       setIsCreateModalOpen(false);
       setNewCounter({ number: '', selectedServices: [] });
       fetchCounters();
+      // Auto-redirect to notifications page after creating terminal
+      navigate('/admin/notifications');
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to initialize terminal.');
     }
