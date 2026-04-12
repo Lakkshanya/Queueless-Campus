@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {Lock, ShieldCheck, ArrowLeft} from 'lucide-react-native';
+import {Lock, ShieldCheck, ArrowLeft, Eye, EyeOff} from 'lucide-react-native';
 import api from '../../services/api';
 
 const ResetPasswordScreen = () => {
@@ -20,6 +20,8 @@ const ResetPasswordScreen = () => {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleReset = async () => {
@@ -91,8 +93,15 @@ const ResetPasswordScreen = () => {
             className="flex-1 ml-4 text-textPrimary text-base"
             value={newPassword}
             onChangeText={setNewPassword}
-            secureTextEntry
+            secureTextEntry={!showPassword}
           />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            {showPassword ? (
+              <EyeOff color="#D6D3D1" size={20} />
+            ) : (
+              <Eye color="#D6D3D1" size={20} />
+            )}
+          </TouchableOpacity>
         </View>
 
         <View className="bg-card rounded-xl px-4 py-4 flex-row items-center border border-stone-800 mt-4">
@@ -103,8 +112,15 @@ const ResetPasswordScreen = () => {
             className="flex-1 ml-4 text-textPrimary text-base"
             value={confirmPassword}
             onChangeText={setConfirmPassword}
-            secureTextEntry
+            secureTextEntry={!showConfirmPassword}
           />
+          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+            {showConfirmPassword ? (
+              <EyeOff color="#D6D3D1" size={20} />
+            ) : (
+              <Eye color="#D6D3D1" size={20} />
+            )}
+          </TouchableOpacity>
         </View>
       </View>
 

@@ -14,6 +14,10 @@ module.exports = {
         textPrimary: '#FAFAF9',
         textSecondary: '#D6D3D1',
       },
+      fontFamily: {
+        serif: ['Times New Roman', 'serif'],
+        sans: ['Times New Roman', 'serif'], 
+      },
     },
   },
   plugins: [],

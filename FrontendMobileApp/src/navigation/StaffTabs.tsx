@@ -2,8 +2,8 @@ import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {LayoutDashboard, User, Bell, ClipboardList} from 'lucide-react-native';
 import StaffDashboard from '../screens/staff/StaffDashboard';
-import NotificationsScreen from '../screens/student/NotificationsScreen';
-import ProfileScreen from '../screens/student/ProfileScreen';
+import StaffNotificationScreen from '../screens/staff/StaffNotificationScreen';
+import StaffProfileScreen from '../screens/staff/StaffProfileScreen';
 import QueueHandlingScreen from '../screens/staff/QueueHandlingScreen';
 
 const Tab = createBottomTabNavigator();
@@ -48,8 +48,8 @@ const StaffTabs = () => {
       })}>
       <Tab.Screen name="Dashboard" component={StaffDashboard} />
       <Tab.Screen name="Queue Handling" component={QueueHandlingScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Notifications" component={StaffNotificationScreen} />
+      <Tab.Screen name="Profile" component={StaffProfileScreen} />
     </Tab.Navigator>
   );
 };

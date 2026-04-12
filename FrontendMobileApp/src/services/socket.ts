@@ -14,7 +14,7 @@ class SocketService {
 
     this.socket = io(dynamicSocketUrl, {
       auth: {token},
-      transports: ['polling', 'websocket'],
+      transports: ['websocket'],
       reconnectionAttempts: 5,
     });
 

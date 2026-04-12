@@ -74,20 +74,27 @@ const SignupScreen = () => {
 
     setLoading(true);
     try {
-      await api.post('auth/signup', {
+      const response = await api.post('auth/signup', {
         name,
         email,
         password,
         role,
       });
 
-      Alert.alert(
-        'Success',
-        'Registration successful! Please check your email for the OTP.',
-      );
+      if (response.status === 200 && response.data.message.includes('unverified')) {
+        Alert.alert('Notice', 'An unverified account already exists. A new verification code has been sent to your email.');
+      } else {
+        Alert.alert('Success', 'Registration successful! A verification code has been sent to your email.');
+      }
+      
       navigation.navigate('OTP', {email});
     } catch (error: any) {
-      Alert.alert('Registration Failed', error.message);
+      const message = error.response?.data?.message || 'Registration failed';
+      if (message === 'Email already registered') {
+        Alert.alert('Account Exists', 'This email is already registered. Please sign in instead.');
+      } else {
+        Alert.alert('Registration Error', message);
+      }
     } finally {
       setLoading(false);
     }

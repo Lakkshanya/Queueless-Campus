@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "63053128716",
+    "project_id": "queuelesscampus-6246c",
+    "storage_bucket": "queuelesscampus-6246c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:63053128716:android:ab430cda4ec77acc37ba29",
+        "android_client_info": {
+          "package_name": "com.frontendmobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3v4nzI2OITlVuHnGmAFT1rLxN7hByvNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
