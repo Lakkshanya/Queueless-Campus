@@ -1,17 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-brand-primary: #9A3412;
-  --color-brand-primary-button: #C2410C;
-  --color-brand-secondary-button: #FDBA74;
-  --color-brand-bg: #1C1917;
-  --color-brand-card: #292524;
-  --color-brand-text-primary: #FAFAF9;
-  --color-brand-text-secondary: #D6D3D1;
+  --color-primary-orange: #EA580C;
+  --color-primary-orange-hover: #C2410C;
+  --color-bg-deep: #0C0A09;
+  --color-bg-card: #171412;
+  --color-stone-border: rgba(41, 37, 36, 0.4);
+  
+  --font-sans: 'Times New Roman', Times, serif;
+  --font-display: 'Times New Roman', Times, serif;
 }
 
-@layer base {
-  body {
-    @apply bg-brand-bg text-brand-text-primary font-sans antialiased;
-  }
+:root {
+  --primary: #EA580C;
+  --primary-hover: #C2410C;
+  --bg-main: #0C0A09;
+  --bg-card: #171412;
+  --border-stone: rgba(41, 37, 36, 0.4);
 }
+
+body {
+  background-color: var(--bg-main);
+  color: #FAFAF9;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: bold;
+}
+
+::selection {
+  background-color: rgba(234, 88, 12, 0.3);
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #292524;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #EA580C;
+}
+
+/* Glassmorphism & Effects */
+.glass-card {
+  background: rgba(23, 20, 18, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-stone);
+}
+
+.orange-glow {
+  box-shadow: 0 0 40px -10px rgba(234, 88, 12, 0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 3s ease-in-out infinite;
+}
+
+@keyframes slide-right {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-right {
+  animation: slide-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

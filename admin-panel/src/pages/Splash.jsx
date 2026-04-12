@@ -30,17 +30,17 @@ const Splash = () => {
       <div className="relative z-10 flex flex-col items-center">
         <div className="relative group perspective-1000">
           {/* Logo Card with Luxury Depth */}
-          <div className="w-32 h-32 bg-gradient-to-br from-[#9A3412] to-[#7C2D12] rounded-[2.5rem] rotate-12 flex items-center justify-center shadow-[0_20px_50px_rgba(154,52,18,0.3)] border border-[#9A3412]/20 animate-in zoom-in-50 fade-in duration-1000">
-            <div className="text-white text-6xl font-black -rotate-12 tracking-tighter drop-shadow-2xl select-none">Q</div>
+          <div className="w-20 h-20 bg-gradient-to-br from-[#9A3412] to-[#7C2D12] rounded-2xl rotate-12 flex items-center justify-center shadow-[0_20px_50px_rgba(154,52,18,0.3)] border border-[#9A3412]/20 animate-in zoom-in-50 fade-in duration-1000">
+            <div className="text-white text-lg font-black -rotate-12 tracking-tighter drop-shadow-2xl select-none">Q</div>
           </div>
           
           {/* Decorative Ring */}
-          <div className="absolute inset-0 border-2 border-[#9A3412]/20 rounded-[2.5rem] rotate-[24deg] scale-110 pointer-events-none animate-spin duration-[10s] linear divide-stone-800"></div>
+          <div className="absolute inset-0 border-2 border-[#9A3412]/20 rounded-2xl rotate-[24deg] scale-110 pointer-events-none animate-spin duration-[10s] linear divide-stone-800"></div>
         </div>
 
-        <div className="mt-16 text-center animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-300">
-          <h1 className="text-[#FAFAF9] text-5xl font-black tracking-tighter lowercase flex items-center gap-1">
-            queue<span className="text-[#9A3412] uppercase font-bold text-4xl tracking-normal">Less</span>
+        <div className="mt-8 text-center animate-in slide-in-from-bottom-8 fade-in duration-1000 delay-300">
+          <h1 className="text-[#FAFAF9] text-xl font-black tracking-tighter lowercase flex items-center gap-1">
+            queue<span className="text-[#9A3412] uppercase font-bold text-lg tracking-normal">Less</span>
           </h1>
           <div className="flex items-center gap-3 mt-4 justify-center">
             <div className="h-[1px] w-8 bg-stone-800"></div>
@@ -55,7 +55,7 @@ const Splash = () => {
         <div className="w-48 h-[2px] bg-stone-800/50 rounded-full overflow-hidden relative">
           <div className="absolute inset-0 bg-[#9A3412] w-1/3 rounded-full animate-[shimmer_2s_infinite_ease-in-out]"></div>
         </div>
-        <p className="text-[#D6D3D1] text-[9px] font-bold uppercase tracking-[0.2em] opacity-40">Initializing Analytics Engine</p>
+        <p className="text-[#D6D3D1] text-[9px] font-bold uppercase tracking-[0.2em] opacity-40">Loading Dashboard...</p>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `

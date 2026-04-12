@@ -77,8 +77,8 @@ const ProfileEdit = () => {
   );
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-4xl mx-auto py-12 px-6">
-      <header className="flex items-center justify-between mb-12">
+    <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-4xl mx-auto py-6 px-6">
+      <header className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-6">
           <button 
             onClick={() => navigate(-1)}
@@ -91,7 +91,7 @@ const ProfileEdit = () => {
               <Shield size={12} />
               Profile Settings
             </div>
-            <h1 className="text-4xl font-black uppercase tracking-tighter leading-none text-[#FAFAF9]">Edit Profile</h1>
+            <h1 className="text-lg font-black uppercase tracking-tighter leading-none text-[#FAFAF9]">Edit Profile</h1>
           </div>
         </div>
         {success && (
@@ -104,9 +104,9 @@ const ProfileEdit = () => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Avatar Section */}
-        <div className="bg-[#1C1917] p-10 rounded-[3rem] border border-stone-800/50 shadow-2xl flex flex-col items-center gap-6">
+        <div className="bg-[#1C1917] p-6 rounded-[3rem] border border-stone-800/50 shadow-2xl flex flex-col items-center gap-6">
           <div className="relative group">
-            <div className="w-32 h-32 bg-stone-900 rounded-[2.5rem] border-2 border-stone-800 flex items-center justify-center text-[#FAFAF9] text-3xl font-black transition-all group-hover:border-[#9A3412] shadow-inner overflow-hidden">
+            <div className="w-20 h-20 bg-stone-900 rounded-2xl border-2 border-stone-800 flex items-center justify-center text-[#FAFAF9] text-xl font-black transition-all group-hover:border-[#9A3412] shadow-inner overflow-hidden">
                {formData.profilePhoto ? (
                  <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
                ) : (
@@ -124,7 +124,7 @@ const ProfileEdit = () => {
         </div>
 
         {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
            {[
              { label: 'Full Name', icon: <User />, name: 'name', type: 'text' },
              { label: 'Email Address', icon: <Mail />, name: 'email', type: 'email', disabled: true },
@@ -155,7 +155,7 @@ const ProfileEdit = () => {
            <button 
             type="submit"
             disabled={saving}
-            className="group flex items-center gap-4 bg-[#9A3412] hover:bg-[#C2410C] px-10 py-5 rounded-[2rem] transition-all shadow-2xl shadow-orange-950/40 disabled:opacity-50 disabled:grayscale"
+            className="group flex items-center gap-4 bg-[#9A3412] hover:bg-[#C2410C] px-6 py-5 rounded-xl transition-all shadow-2xl shadow-orange-950/40 disabled:opacity-50 disabled:grayscale"
            >
               {saving ? <Loader2 size={20} className="animate-spin text-white" /> : <Save size={20} className="text-white" />}
               <span className="text-[11px] font-black uppercase tracking-[0.3em] text-white">Save Changes</span>

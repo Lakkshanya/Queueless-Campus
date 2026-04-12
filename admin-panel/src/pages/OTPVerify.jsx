@@ -12,6 +12,9 @@ import {
 const OTPVerify = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [error, setError] = useState('');
+  const [notification, setNotification] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
   const location = useLocation();
@@ -19,7 +22,6 @@ const OTPVerify = () => {
 
   useEffect(() => {
     if (!email) {
-      alert('Security Session Expired. Please restart the registration process.');
       navigate('/signup');
     }
   }, [email, navigate]);
@@ -27,6 +29,7 @@ const OTPVerify = () => {
   const handleChange = (value, index) => {
     if (!/^\d*$/.test(value)) return;
     
+    setError('');
     const newOtp = [...otp];
     newOtp[index] = value.slice(-1);
     setOtp(newOtp);
@@ -48,11 +51,12 @@ const OTPVerify = () => {
     e.preventDefault();
     const otpValue = otp.join('');
     if (otpValue.length !== 6) {
-      alert('Please enter the complete 6-digit verification code.');
+      setError('Please enter the complete 6-digit verification code.');
       return;
     }
 
     setLoading(true);
+    setError('');
     try {
       const res = await api.post('/auth/verify-otp', {
         email,
@@ -61,49 +65,60 @@ const OTPVerify = () => {
       
       const { token, user } = res.data;
       if (token && user) {
-        // Auto-login after successful verification
         login({ ...user, token });
-        alert('Identity Verified Successfully! Redirecting to setup...');
-        navigate('/complete-profile');
+        setNotification('Verification Successful. Loading your workspace...');
+        setTimeout(() => navigate('/complete-profile'), 1500);
       } else {
-        alert('Verification Successful! Please log in to continue.');
         navigate('/login');
       }
     } catch (error) {
-      alert(error.response?.data?.message || 'Verification failed. Please check the code and try again.');
+      setError(error.response?.data?.message || 'Verification failed. Please check the code and try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
+    setResending(true);
+    setError('');
+    setNotification('');
     try {
       await api.post('/auth/forgot-password', { email });
-      alert('A new security code has been dispatched to your email.');
+      setNotification('A new verification code has been sent to your email.');
     } catch (error) {
-      alert('System failed to re-dispatch the code. Please try again later.');
+      setError('Failed to resend code. Please check your connection.');
+    } finally {
+      setResending(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#1C1917] flex items-center justify-center p-6 font-sans">
-      <div className="max-w-md w-full bg-[#292524] rounded-[40px] p-12 border border-stone-800 shadow-2xl relative overflow-hidden text-center">
-        {/* Subtle background glow */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#9A3412] opacity-10 blur-[80px]"></div>
+    <div className="min-h-screen bg-[#0C0A09] flex items-center justify-center p-5 selection:bg-orange-600/30 font-sans relative overflow-hidden">
+      {/* Background Ambience */}
+      <div className="absolute top-0 right-0 w-[50vw] h-[50vh] bg-orange-600/5 blur-[150px] pointer-events-none" />
+      
+      <div className="max-w-xl w-full bg-[#171412] rounded-3xl p-6 border border-stone-800/80 shadow-2xl relative overflow-hidden group">
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-orange-600/40 to-transparent" />
         
-        <div className="text-center mb-10 relative z-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#9A3412]/10 rounded-2xl mb-6 border border-[#9A3412]/20 shadow-inner">
-            <Fingerprint className="text-[#9A3412]" size={32} />
+        <header className="text-center mb-10 relative z-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-stone-900 border border-stone-800 rounded-2xl mb-8 shadow-inner group-hover:border-orange-600/30 transition-all duration-700">
+            <Fingerprint className="text-orange-600" size={32} strokeWidth={1.5} />
           </div>
-          <h2 className="text-3xl font-black text-[#FAFAF9] mb-3 uppercase tracking-tighter italic">Verify Identity</h2>
-          <p className="text-[#D6D3D1] font-bold text-[10px] uppercase tracking-[4px] opacity-60">Authentication Code required</p>
-          <div className="mt-4 px-4 py-2 bg-stone-900/50 rounded-full border border-stone-800 inline-block">
-            <p className="text-[#9A3412] text-[10px] font-mono font-bold tracking-wider">{email}</p>
+          
+          <div className="flex items-center justify-center gap-2 text-orange-600 text-[9px] font-black uppercase tracking-[0.4em] mb-4">
+             <ShieldCheck size={12} strokeWidth={3} /> Security Verification
           </div>
-        </div>
+          
+          <h2 className="text-xl font-black text-white uppercase tracking-tighter leading-none mb-6">Verify Your Email</h2>
+          
+          <div className="px-5 py-2.5 bg-stone-900/50 rounded-full border border-stone-800/60 inline-flex items-center gap-3 shadow-inner">
+            <div className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse" />
+            <p className="text-stone-500 text-[9px] font-black tracking-widest uppercase">{email}</p>
+          </div>
+        </header>
 
-        <form onSubmit={handleVerify} className="space-y-10 relative z-10">
-          <div className="flex justify-between gap-2 px-2">
+        <form onSubmit={handleVerify} className="space-y-12 relative z-10">
+          <div className="flex justify-between gap-3">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -114,42 +129,56 @@ const OTPVerify = () => {
                 value={digit}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 onChange={(e) => handleChange(e.target.value, index)}
-                className="w-12 h-16 bg-[#1C1917] border border-stone-800 rounded-2xl text-center text-2xl font-black text-[#FAFAF9] focus:outline-none focus:border-[#9A3412] transition-all shadow-inner focus:shadow-[#9A3412]/10"
+                className="w-full h-16 bg-stone-900/50 border border-stone-800 rounded-xl text-center text-xl font-black text-white focus:outline-none focus:border-orange-600/50 transition-all shadow-inner focus:shadow-[0_0_20px_rgba(234,88,12,0.1)] placeholder-stone-900/20"
+                placeholder="-"
+                autoFocus={index === 0}
               />
             ))}
           </div>
 
+          {(error || notification) && (
+            <div className={`p-5 rounded-xl border animate-in slide-in-from-top-4 duration-500 backdrop-blur-md ${error ? 'bg-red-500/5 border-red-500/20 text-red-500' : 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500'}`}>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-center leading-relaxed">
+                {error || notification}
+              </p>
+            </div>
+          )}
+
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-[#9A3412] hover:bg-[#C2410C] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-950/20 uppercase tracking-widest text-[11px] flex items-center justify-center gap-2 group disabled:opacity-50"
+            className="w-full bg-orange-600 hover:bg-orange-500 text-white py-5 rounded-2xl font-black uppercase tracking-[0.5em] text-[10px] shadow-[0_20px_40px_-10px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center gap-4 active:scale-[0.97] group/btn"
           >
-            {loading ? 'Verifying...' : (
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+            ) : (
               <>
-                Finalize Verification
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                Confirm Verification
+                <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" strokeWidth={3} />
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-12 text-center relative z-10">
+        <footer className="mt-10 text-center relative z-10 border-t border-stone-800/40 pt-10">
           <button 
             onClick={handleResend}
-            className="group flex flex-col items-center gap-3 mx-auto"
+            disabled={resending}
+            className="group/resend inline-flex flex-col items-center gap-3 transition-all"
           >
-            <div className="flex items-center gap-2 text-[#D6D3D1] text-[10px] font-bold uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
+            <p className="text-[9px] font-black text-stone-700 uppercase tracking-widest group-hover/resend:text-stone-500 transition-colors">
               Didn't receive the code?
-            </div>
-            <div className="flex items-center gap-2 text-[#9A3412] font-black text-[10px] uppercase tracking-widest">
-              <RefreshCcw size={14} className="group-hover:rotate-180 transition-transform duration-500" />
-              Re-dispatch Security OTP
+            </p>
+            <div className="flex items-center gap-2 text-orange-600 font-black text-[9px] uppercase tracking-widest">
+              <RefreshCcw size={14} className={`${resending ? 'animate-spin' : 'group-hover/resend:rotate-180'} transition-transform duration-700`} strokeWidth={3} />
+              {resending ? 'Sending Code...' : 'Resend Verification Code'}
             </div>
           </button>
-        </div>
+        </footer>
       </div>
     </div>
   );
 };
 
 export default OTPVerify;
+

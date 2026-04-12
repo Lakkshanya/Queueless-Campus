@@ -70,17 +70,18 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1C1917] flex items-center justify-center p-6 font-sans">
-      <div className="max-w-md w-full bg-[#292524] rounded-[40px] p-12 border border-stone-800 shadow-2xl relative overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#9A3412] opacity-10 blur-[80px]"></div>
-        
-        <div className="text-center mb-12 relative z-10">
+    <div className="min-h-screen bg-[#0C0A09] flex items-center justify-center p-4 font-sans selection:bg-orange-600/30">
+      <div className="max-w-sm w-full bg-[#1C1917] rounded-2xl p-6 border border-stone-800/60 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+        {/* Animated background glow */}
+        <div className="absolute -top-16 -right-16 w-32 h-32 bg-orange-600/10 blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-stone-900/40 blur-[80px] pointer-events-none" />
+
+        <div className="text-center mb-8 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-[#9A3412]/10 rounded-2xl mb-6 border border-[#9A3412]/20 shadow-inner">
-            <LogIn className="text-[#9A3412]" size={32} />
+            <Lock className="text-[#9A3412]" size={32} strokeWidth={1.5} />
           </div>
-          <h1 className="text-4xl font-black text-[#FAFAF9] mb-2 uppercase tracking-tighter">Identity Access</h1>
-          <p className="text-[#D6D3D1] font-bold text-[10px] uppercase tracking-[4px] opacity-60">Admin & Staff Portal</p>
+          <h1 className="text-lg font-black text-white mb-2 uppercase tracking-tighter leading-none">Login</h1>
+          <p className="text-stone-500 font-black text-[9px] uppercase tracking-[0.4em] opacity-80">Campus Administration</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-6 relative z-10">
@@ -129,17 +130,17 @@ const Login = () => {
 
           {/* Captcha Section */}
           <div className="space-y-4 pt-2">
-            <label className="block text-[#D6D3D1] text-[10px] font-black mb-1 uppercase tracking-widest opacity-70 ml-1">Identity Verification</label>
+            <label className="block text-[#D6D3D1] text-[10px] font-black mb-1 uppercase tracking-widest opacity-70 ml-1">Security Check</label>
             <div className="flex gap-3">
               <div className="flex-1 bg-stone-900 border border-stone-800 rounded-2xl px-4 py-4 flex items-center justify-between shadow-inner">
-                <span className="text-xl font-black text-[#9A3412] tracking-[8px] select-none italic line-through decoration-stone-700/50">
+                <span className="text-xl font-black text-[#9A3412] tracking-[8px] select-none italic">
                   {captcha}
                 </span>
                 <button 
                   type="button"
                   onClick={generateCaptcha}
                   className="text-stone-500 hover:text-[#9A3412] transition-colors p-1"
-                  title="Generate New Code"
+                  title="Refresh Captcha"
                 >
                   <RefreshCcw size={16} />
                 </button>
@@ -162,19 +163,19 @@ const Login = () => {
             disabled={loading}
             className="w-full bg-[#9A3412] hover:bg-[#C2410C] text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-orange-950/20 uppercase tracking-widest text-[11px] mt-4 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-wait"
           >
-            {loading ? 'Authenticating...' : (
+            {loading ? 'Entering...' : (
               <>
-                Secure Login
+                Sign In
                 <LogIn size={16} className="group-hover:translate-x-1 transition-transform" />
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-12 text-center relative z-10 flex flex-col gap-4">
+        <div className="mt-6 text-center relative z-10 flex flex-col gap-4">
           <p className="text-[#D6D3D1] text-[10px] font-bold uppercase tracking-widest opacity-60">
             Don't have an account? 
-            <Link to="/signup" className="text-[#9A3412] font-black ml-2 hover:opacity-80 transition-opacity">Request Access</Link>
+            <Link to="/signup" className="text-[#9A3412] font-black ml-2 hover:opacity-80 transition-opacity">Sign Up</Link>
           </p>
           <div className="h-[1px] w-12 bg-stone-800 mx-auto"></div>
           

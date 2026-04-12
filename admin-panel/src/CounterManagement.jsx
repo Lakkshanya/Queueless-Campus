@@ -1,289 +1,316 @@
 import React, { useState, useEffect } from 'react';
 import api from './services/api';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { 
-  Layers, 
-  UserPlus, 
+  Monitor, 
+  Plus, 
+  Trash2, 
   Power, 
   Pause, 
-  ArrowLeft, 
   Search, 
-  PlusCircle, 
-  Activity, 
   ShieldCheck,
   X,
   User,
   ChevronRight,
-  TrendingUp,
-  AlertCircle,
-  Save,
-  Check,
-  RefreshCw
+  Database,
+  ArrowRight,
+  Settings,
+  Activity,
+  Zap
 } from 'lucide-react';
 
 const CounterManagement = () => {
-  const { user } = useAuth();
+  const navigate = useNavigate();
   const [counters, setCounters] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [staffList, setStaffList] = useState([]);
   const [services, setServices] = useState([]);
-  
-  // Modals
+  const [loading, setLoading] = useState(true);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  
-  const [selectedCounterId, setSelectedCounterId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  // New Counter Form
-  const [newCounter, setNewCounter] = useState({
-    number: '',
-    selectedServices: []
-  });
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newCounterNumber, setNewCounterNumber] = useState('');
+  const [selectedServiceId, setSelectedServiceId] = useState('');
+  const [selectedCounterId, setSelectedCounterId] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fetchCounters = async () => {
+  const fetchData = async () => {
     try {
-      const response = await api.get('/counters');
-      setCounters(response.data);
+      const [counterRes, serviceRes] = await Promise.all([
+        api.get('/counters'),
+        api.get('/services')
+      ]);
+      setCounters(counterRes.data);
+      setServices(serviceRes.data);
     } catch (error) {
-      console.error('Error fetching counters:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchData = async () => {
-    try {
-      const [staffRes, serviceRes] = await Promise.all([
-        api.get('/auth/staff'),
-        api.get('/services')
-      ]);
-      setStaffList(staffRes.data);
-      setServices(serviceRes.data);
-    } catch (error) {
-      console.error('Error fetching management data:', error);
-    }
-  };
-
   useEffect(() => {
-    fetchCounters();
     fetchData();
   }, []);
 
-  const navigate = useNavigate();
-
-  const handleCreateCounter = async () => {
-    if (!newCounter.number) return alert('Counter Number is required.');
+  const handleCreateCounter = async (e) => {
+    e.preventDefault();
+    if (!newCounterNumber) return;
+    
+    setIsSubmitting(true);
     try {
-      await api.post('/counters', {
-        number: parseInt(newCounter.number),
-        services: newCounter.selectedServices
-      });
-      setIsCreateModalOpen(false);
-      setNewCounter({ number: '', selectedServices: [] });
-      fetchCounters();
-      // Auto-redirect to notifications page after creating terminal
-      navigate('/admin/notifications');
+      await api.post('/counters', { number: parseInt(newCounterNumber) });
+      setNewCounterNumber('');
+      setIsAddModalOpen(false);
+      fetchData();
     } catch (error) {
       alert(error.response?.data?.message || 'Failed to initialize terminal.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleAssignStaff = async (staffId) => {
+  const handleAssign = async (e) => {
+    e.preventDefault();
+    if (!selectedServiceId || !selectedCounterId) return;
+
+    setIsSubmitting(true);
     try {
-      await api.post('/counters/assign-staff', {
-        counterId: selectedCounterId,
-        staffId
+      // Update the service with the assigned counter
+      const service = services.find(s => s._id === selectedServiceId);
+      await api.put(`/services/${selectedServiceId}`, {
+        ...service,
+        assignedCounter: selectedCounterId
       });
-      setIsAssignModalOpen(false);
-      fetchCounters();
+      
+      // Requirement: Redirect to notification page after saving
+      navigate('/admin/notifications');
     } catch (error) {
-      alert(error.response?.data?.message || 'Assignment rejected.');
+      alert(error.response?.data?.message || 'Assignment failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleToggle = async (counterId, currentStatus) => {
+  const handleToggleStatus = async (counterId, currentStatus) => {
     try {
-      let newStatus = currentStatus === 'active' ? 'paused' : 'active';
+      const newStatus = currentStatus === 'active' ? 'paused' : 'active';
       await api.post('/counters/toggle-status', { counterId, status: newStatus });
-      fetchCounters();
+      fetchData();
     } catch (error) {
-      console.error('Error toggling status:', error);
+      console.error('Toggle failed:', error);
     }
   };
 
-  const toggleService = (id) => {
-    setNewCounter(prev => ({
-      ...prev,
-      selectedServices: prev.selectedServices.includes(id)
-        ? prev.selectedServices.filter(s => s !== id)
-        : [...prev.selectedServices, id]
-    }));
-  };
-
-  const filteredCounters = counters.filter(c => 
-    c.number?.toString().includes(searchQuery) || 
-    (c.staff?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  if (loading) return (
+    <div className="min-h-[60vh] flex flex-col items-center justify-center">
+      <div className="w-12 h-12 border-4 border-orange-600/20 border-t-orange-600 rounded-full animate-spin mb-4" />
+      <p className="text-stone-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Mapping Network Terminals...</p>
+    </div>
   );
 
-  if (loading) return <div className="p-20 text-center text-stone-600 font-black tracking-widest animate-pulse uppercase">Polling Registry...</div>;
-
   return (
-    <div className="max-w-7xl mx-auto p-6 font-sans">
-      <header className="flex justify-between items-end mb-16">
+    <div className="space-y-12 animate-in font-display" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
         <div>
-           <div className="flex items-center gap-2 text-[#9A3412] text-[10px] font-black uppercase tracking-[0.4em] mb-3">
-              <Layers size={14} /> Network Infrastructure
-           </div>
-           <h1 className="text-5xl font-black uppercase tracking-tighter text-white">Counter Management</h1>
-        </div>
-        <div className="flex items-center gap-4 w-full lg:w-auto">
-            <button 
-              onClick={fetchCounters}
-              className="w-12 h-12 bg-stone-900 border border-stone-800 rounded-2xl flex items-center justify-center text-stone-600 hover:text-[#9A3412] hover:border-[#9A3412]/30 transition-all active:rotate-180 duration-500"
-              title="Manual Re-sync"
-            >
-              <RefreshCw size={18} />
-            </button>
-            <div className="relative flex-1 lg:flex-none">
-              <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-600" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search Nodes..." 
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="bg-stone-900 border border-stone-800 rounded-2xl p-4 pl-12 text-xs font-bold text-white outline-none focus:border-[#9A3412] w-64"
-              />
-           </div>
-           <button 
-            onClick={() => setIsCreateModalOpen(true)}
-            className="p-4 px-8 bg-[#9A3412] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl hover:bg-[#C2410C] transition-all flex items-center gap-3"
-           >
-              <PlusCircle size={18} /> New Terminal
-           </button>
-        </div>
-      </header>
-
-      <div className="grid grid-cols-3 gap-8">
-        {filteredCounters.map(counter => (
-          <div key={counter._id} className="bg-[#1C1917] rounded-[2.5rem] p-10 border border-stone-800/50 hover:border-[#9A3412]/40 transition-all flex flex-col relative group">
-             <div className="flex justify-between items-start mb-10">
-                <div className="w-16 h-16 bg-stone-900 border border-stone-800 rounded-3xl flex items-center justify-center text-[#FAFAF9] text-3xl font-black">{counter.number}</div>
-                <div className={`px-4 py-2 rounded-full border text-[9px] font-black uppercase tracking-widest ${counter.status === 'active' ? 'bg-green-950/20 text-green-500 border-green-900/30' : 'bg-red-950/20 text-red-500 border-red-900/30'}`}>
-                   {counter.status}
-                </div>
-             </div>
-
-             <div className="space-y-6 mb-12 flex-1">
-                <div>
-                   <p className="text-[9px] font-black uppercase tracking-widest text-stone-600 mb-2">Human Operator</p>
-                   <p className="text-sm font-black text-white uppercase">{counter.staff?.name || 'Inert Terminal'}</p>
-                </div>
-                <div>
-                   <p className="text-[9px] font-black uppercase tracking-widest text-stone-600 mb-2">Assigned Services</p>
-                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest leading-relaxed">
-                      {counter.services?.map(s => s.name).join(', ') || 'General Ops'}
-                   </p>
-                </div>
-                <div>
-                   <p className="text-[9px] font-black uppercase tracking-widest text-stone-600 mb-2">Current Workload</p>
-                   <p className="text-xs font-black text-[#9A3412] uppercase">{counter.workload || 0} Entities Enqueued</p>
-                </div>
-             </div>
-
-             <div className="flex gap-4">
-                <button 
-                  onClick={() => { setSelectedCounterId(counter._id); setIsAssignModalOpen(true); }}
-                  className="flex-1 bg-stone-900 py-4 rounded-2xl text-[10px] font-black uppercase text-white border border-stone-800 hover:border-[#9A3412] transition-all"
-                >
-                  Deploy
-                </button>
-                <button 
-                  onClick={() => handleToggle(counter._id, counter.status)}
-                  className={`flex-1 py-4 rounded-2xl text-[10px] font-black uppercase border transition-all ${counter.status === 'active' ? 'bg-red-950/10 text-red-500 border-red-900/20' : 'bg-green-950/10 text-green-500 border-green-900/20'}`}
-                >
-                  {counter.status === 'active' ? 'Pause' : 'Online'}
-                </button>
-             </div>
+          <div className="flex items-center gap-3 text-orange-600 text-[9px] font-black uppercase tracking-[0.4em] mb-4 bg-orange-600/5 w-fit px-4 py-1.5 rounded-full border border-orange-600/10">
+            <Monitor size={12} strokeWidth={3} />
+            Terminal Infrastructure
           </div>
-        ))}
+          <h1 className="text-5xl font-bold uppercase tracking-tighter text-white leading-none">Counter Units</h1>
+          <p className="text-stone-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-6 max-w-xl leading-relaxed">
+            Manage physical campus workstations and their associated service nodes for real-time queue synchronization.
+          </p>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row items-stretch lg:items-center gap-4 w-full lg:w-auto">
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex-1 lg:flex-none bg-stone-900 border border-stone-800 text-stone-400 hover:text-white hover:border-orange-600/30 p-5 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] flex items-center justify-center gap-4 active:scale-95 group shadow-inner whitespace-nowrap"
+          >
+            <Plus size={18} strokeWidth={3} className="text-orange-600" />
+            Initialize Unit
+          </button>
+          
+          <button 
+            onClick={() => setIsAssignModalOpen(true)}
+            className="flex-1 lg:flex-none bg-orange-600 hover:bg-orange-500 text-white p-5 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.4em] transition-all shadow-[0_20px_40px_-10px_rgba(234,88,12,0.4)] flex items-center justify-center gap-4 active:scale-95 group whitespace-nowrap"
+          >
+            <Zap size={18} strokeWidth={3} />
+            Synchronize Node
+          </button>
+        </div>
       </div>
 
-      {/* CREATE MODAL */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-           <div className="bg-[#1C1917] w-full max-w-lg rounded-[3rem] p-12 border border-stone-800 shadow-2xl relative overflow-hidden">
-              <header className="flex justify-between items-center mb-10">
-                 <div>
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Initialize Terminal</h2>
-                    <p className="text-stone-600 text-[10px] font-black uppercase tracking-widest mt-1">Register new node in the network</p>
-                 </div>
-                 <button onClick={() => setIsCreateModalOpen(false)} className="p-3 bg-stone-900 rounded-full text-stone-500 hover:text-white"><X size={20} /></button>
-              </header>
+      {/* Counter Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {counters.map(counter => {
+          const service = services.find(s => s.assignedCounter?._id === counter._id);
+          const isOccupied = !!service;
 
-              <div className="space-y-8">
-                 <div className="space-y-2">
-                    <label className="text-[9px] font-black text-stone-600 uppercase tracking-widest ml-2">Terminal Number</label>
-                    <input 
-                      type="number" 
-                      value={newCounter.number}
-                      onChange={e => setNewCounter({...newCounter, number: e.target.value})}
-                      className="w-full bg-stone-900 border border-stone-800 rounded-2xl p-4 text-xs font-bold text-white outline-none focus:border-[#9A3412]" 
-                      placeholder="e.g. 05"
-                    />
-                 </div>
+          return (
+            <div key={counter._id} className="group relative bg-[#171412] border border-stone-800/40 rounded-[2.5rem] p-8 transition-all duration-500 hover:border-orange-600/30 shadow-2xl overflow-hidden">
+              <div className="flex justify-between items-start mb-10">
+                <div className="w-16 h-16 rounded-2xl bg-[#0C0A09] border border-stone-800 flex items-center justify-center text-white text-xl font-black shadow-inner">
+                  {counter.number.toString().padStart(2, '0')}
+                </div>
+                <div className={`px-4 py-1.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${counter.status === 'active' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
+                   {counter.status === 'active' ? 'Active' : 'Offline'}
+                </div>
+              </div>
 
-                 <div className="space-y-4">
-                    <label className="text-[9px] font-black text-stone-600 uppercase tracking-widest ml-2 block">Assigned Service Disciplines</label>
-                    <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                       {services.map(s => (
-                         <button 
-                          key={s._id}
-                          onClick={() => toggleService(s._id)}
-                          className={`p-4 rounded-xl border flex items-center justify-between transition-all ${newCounter.selectedServices.includes(s._id) ? 'bg-[#9A3412]/10 border-[#9A3412] text-[#9A3412]' : 'bg-stone-900 border-stone-800 text-stone-600'}`}
-                         >
-                            <span className="text-[10px] font-black uppercase tracking-widest">{s.name}</span>
-                            {newCounter.selectedServices.includes(s._id) && <Check size={12} />}
-                         </button>
-                       ))}
-                    </div>
-                 </div>
+              <div className="mb-10 space-y-2">
+                <p className="text-[9px] font-black text-stone-700 uppercase tracking-widest">Assigned Service</p>
+                <div className="flex items-center gap-3">
+                   <div className={`w-2 h-2 rounded-full ${isOccupied ? 'bg-orange-500 shadow-[0_0_10px_rgba(234,88,12,0.5)]' : 'bg-stone-800'}`} />
+                   <h3 className={`text-sm font-black uppercase tracking-wider ${isOccupied ? 'text-white' : 'text-stone-800 italic'}`}>
+                     {service ? service.name : 'UNLINKED_NODE'}
+                   </h3>
+                </div>
+              </div>
 
+              <div className="flex flex-col gap-3">
                  <button 
-                  onClick={handleCreateCounter}
-                  className="w-full bg-[#9A3412] text-white p-6 rounded-3xl font-black uppercase tracking-[0.4em] text-[11px] shadow-2xl hover:bg-[#C2410C] transition-all flex items-center justify-center gap-3"
+                  onClick={() => handleToggleStatus(counter._id, counter.status)}
+                  className={`w-full p-4 rounded-xl flex items-center justify-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] border transition-all active:scale-95 ${counter.status === 'active' ? 'bg-red-950/20 border-red-900/30 text-red-500 hover:bg-red-500 hover:text-white' : 'bg-emerald-950/20 border-emerald-900/30 text-emerald-500 hover:bg-emerald-500 hover:text-white'}`}
                  >
-                    <Save size={18} /> Sync Registry
+                   {counter.status === 'active' ? <Pause size={14} strokeWidth={3} /> : <Power size={14} strokeWidth={3} />}
+                   {counter.status === 'active' ? 'Deactivate' : 'Activate Unit'}
                  </button>
               </div>
-           </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Assignment Modal */}
+      {isAssignModalOpen && (
+        <div className="fixed inset-0 bg-stone-950/90 backdrop-blur-xl flex items-center justify-center p-6 z-[100] animate-in fade-in">
+          <div className="bg-[#171412] w-full max-w-lg rounded-[3rem] border border-stone-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] relative p-12">
+            <button 
+              onClick={() => setIsAssignModalOpen(false)} 
+              className="absolute top-8 right-8 w-12 h-12 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-500 hover:text-white hover:bg-red-600 transition-all duration-300"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="mb-12 text-center">
+              <div className="text-orange-600 text-[9px] font-black uppercase tracking-[0.5em] mb-4">Infrastructure Linking</div>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-white">Assign Terminal</h2>
+            </div>
+
+            <form onSubmit={handleAssign} className="space-y-12">
+              <div className="space-y-4">
+                <label className="block text-[9px] font-black text-stone-600 uppercase tracking-[0.3em] ml-2">Select Target Service</label>
+                <select 
+                  value={selectedServiceId}
+                  onChange={e => setSelectedServiceId(e.target.value)}
+                  className="w-full bg-stone-900 border border-stone-800 p-6 rounded-2xl outline-none text-[11px] font-black text-white focus:border-orange-600 transition shadow-inner appearance-none"
+                  required
+                >
+                  <option value="">SELECT SERVICE NODE...</option>
+                  {services.map(s => (
+                    <option key={s._id} value={s._id}>{s.name} ({s.prefix})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex justify-center py-2 animate-pulse-soft">
+                 <ArrowRight className="text-orange-600 rotate-90" size={32} strokeWidth={3} />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-between items-center ml-2">
+                   <label className="block text-[9px] font-black text-stone-600 uppercase tracking-[0.3em]">Select Physical Counter</label>
+                   <button 
+                    type="button"
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="text-[8px] font-black text-orange-600 uppercase tracking-widest hover:text-orange-400 flex items-center gap-1 transition-colors"
+                   >
+                     <Plus size={10} strokeWidth={3} /> Quick Add
+                   </button>
+                </div>
+                <div className="relative">
+                  <select 
+                    value={selectedCounterId}
+                    onChange={e => setSelectedCounterId(e.target.value)}
+                    className="w-full bg-stone-900 border border-stone-800 p-6 rounded-2xl outline-none text-[11px] font-black text-white focus:border-orange-600 transition shadow-inner appearance-none pr-12"
+                    required
+                  >
+                    <option value="">{counters.length === 0 ? "NO TERMINALS FOUND (ADD NEW)" : "SELECT TERMINAL..."}</option>
+                    {counters.map(c => {
+                      const isAlreadyAssigned = services.some(s => s.assignedCounter?._id === c._id);
+                      return (
+                        <option key={c._id} value={c._id} disabled={isAlreadyAssigned}>
+                          UNIT-{c.number.toString().padStart(2, '0')} {isAlreadyAssigned ? '[ALREADY ASSIGNED]' : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  {counters.length === 0 && (
+                    <div className="absolute top-full left-0 mt-2 text-[7px] font-black text-orange-600 uppercase tracking-[0.2em] animate-pulse">
+                      Critical Error: Operational registry empty. Use 'Quick Add' to initialize.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button type="submit" className="w-full bg-orange-600 hover:bg-orange-500 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.5em] text-white shadow-xl transition-all flex items-center justify-center gap-4 active:scale-95 leading-none">
+                <ShieldCheck size={20} strokeWidth={2.5} />
+                CONFIRM ASSIGNMENT
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* ASSIGN MODAL (Existing logic maintained) */}
-      {isAssignModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-           <div className="bg-[#1C1917] w-full max-w-lg rounded-[3rem] p-12 border border-stone-800">
-              <header className="flex justify-between items-center mb-10">
-                 <div>
-                    <h2 className="text-3xl font-black text-white uppercase tracking-tighter">Personnel Sync</h2>
-                    <p className="text-stone-600 text-[10px] font-black uppercase tracking-widest mt-1">Deploy human operator to terminal</p>
-                 </div>
-                 <button onClick={() => setIsAssignModalOpen(false)} className="p-3 bg-stone-900 rounded-full text-stone-500 hover:text-white"><X size={20} /></button>
-              </header>
-              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                 {staffList.map(staff => (
-                    <button key={staff._id} onClick={() => handleAssignStaff(staff._id)} className="w-full bg-stone-900/50 hover:bg-stone-900 border border-stone-800 p-6 rounded-3xl flex justify-between items-center transition-all">
-                       <div className="text-left">
-                          <p className="text-xs font-black text-white uppercase">{staff.name}</p>
-                          <p className="text-[9px] text-stone-600 font-bold">{staff.email}</p>
-                       </div>
-                       <ChevronRight size={18} className="text-stone-800" />
-                    </button>
-                 ))}
+      {/* Add Counter Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-stone-950/90 backdrop-blur-xl flex items-center justify-center p-6 z-[100] animate-in fade-in">
+          <div className="bg-[#171412] w-full max-w-md rounded-[3rem] border border-stone-800 shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] relative p-12">
+            <button 
+              onClick={() => setIsAddModalOpen(false)} 
+              className="absolute top-8 right-8 w-12 h-12 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-stone-500 hover:text-white hover:bg-red-600 transition-all duration-300"
+            >
+              <X size={20} />
+            </button>
+
+            <div className="mb-12 text-center">
+              <div className="text-orange-600 text-[9px] font-black uppercase tracking-[0.5em] mb-4">Unit Identification</div>
+              <h2 className="text-3xl font-black uppercase tracking-tighter text-white">Add Terminal</h2>
+            </div>
+
+            <form onSubmit={handleCreateCounter} className="space-y-12">
+              <div className="space-y-4">
+                <label className="block text-[9px] font-black text-stone-600 uppercase tracking-[0.3em] ml-2">Terminal Number</label>
+                <div className="relative">
+                   <div className="absolute left-6 top-1/2 -translate-y-1/2 text-orange-600 font-black text-[10px]">UNIT-</div>
+                   <input 
+                    type="number" 
+                    value={newCounterNumber}
+                    onChange={e => setNewCounterNumber(e.target.value)}
+                    className="w-full bg-stone-900 border border-stone-800 p-6 pl-16 rounded-2xl outline-none text-[14px] font-black text-white focus:border-orange-600 transition shadow-inner"
+                    placeholder="01"
+                    required
+                  />
+                </div>
+                <p className="text-[8px] font-bold text-stone-700 uppercase tracking-[0.2em] px-2 italic">Provide the physical counter number for operational alignment.</p>
               </div>
-           </div>
+
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="w-full bg-orange-600 hover:bg-orange-500 py-6 rounded-2xl font-black text-[11px] uppercase tracking-[0.5em] text-white shadow-xl transition-all flex items-center justify-center gap-4 active:scale-95 leading-none disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <ShieldCheck size={20} strokeWidth={2.5} />
+                    INITIALIZE UNIT
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>

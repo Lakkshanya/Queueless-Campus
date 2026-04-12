@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import api from './services/api';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area, Cell, PieChart, Pie
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, Cell
 } from 'recharts';
 import { 
-  ArrowLeft, 
   TrendingUp, 
   Clock, 
   Users, 
   ShieldCheck, 
   Activity, 
-  BarChart3, 
-  PieChart as PieIcon,
-  ChevronRight,
-  Zap,
-  Info
+  Zap, 
+  Info,
+  Layers,
+  Monitor,
+  CheckCircle2,
+  BarChart3
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const AnalyticsPage = () => {
   const [dashboardStats, setDashboardStats] = useState(null);
@@ -45,212 +44,162 @@ const AnalyticsPage = () => {
   }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#1C1917] flex flex-col items-center justify-center font-sans">
-      <div className="w-12 h-12 border-4 border-[#9A3412]/20 border-t-[#9A3412] rounded-full animate-spin mb-4" />
-      <p className="text-[#D6D3D1] text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Synthesizing Intelligence...</p>
+    <div className="min-h-[60vh] flex flex-col items-center justify-center">
+      <div className="w-12 h-12 border-4 border-orange-600/20 border-t-orange-600 rounded-full animate-spin mb-4" />
+      <p className="text-stone-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Aggregating Grid Metrics...</p>
     </div>
   );
 
   return (
-    <div className="animate-in fade-in duration-700">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 gap-8">
-          <div className="flex flex-col gap-6">
-            <div>
-              <div className="flex items-center gap-2 text-[#9A3412] text-[10px] font-black uppercase tracking-[0.4em] mb-3">
-                <Activity size={14} />
-                Global Intelligence
+    <div className="space-y-12 animate-in font-display" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+        <div>
+          <div className="flex items-center gap-3 text-orange-600 text-[9px] font-black uppercase tracking-[0.4em] mb-4 bg-orange-600/5 w-fit px-4 py-1.5 rounded-full border border-orange-600/10">
+            <BarChart3 size={12} strokeWidth={3} />
+            Data Intelligence Engine
+          </div>
+          <h1 className="text-5xl font-bold uppercase tracking-tighter text-white leading-none">Global Analytics</h1>
+          <p className="text-stone-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-6 max-w-xl leading-relaxed">
+            Monitor real-time queue density, terminal efficiency, and personnel performance across the administrative grid.
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4 bg-[#171412] px-6 py-4 rounded-2xl border border-stone-800/60 shadow-2xl overflow-hidden group">
+           <div className={`w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.3)]`} />
+           <span className="text-[10px] font-black uppercase tracking-widest text-stone-600">Sync_Active: Real-time</span>
+        </div>
+      </div>
+
+      {/* Primary Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+         {[
+           { label: 'Total Tokens', value: dashboardStats?.totalTokensToday || 0, icon: <Layers size={20} />, color: 'orange' },
+           { label: 'Completed', value: dashboardStats?.completedToday || 0, icon: <CheckCircle2 size={20} />, color: 'emerald' },
+           { label: 'Pending Grid', value: dashboardStats?.pendingToday || 0, icon: <Activity size={20} />, color: 'blue' },
+           { label: 'Avg Process Time', value: `${dashboardStats?.avgWaitTime || 0}M`, icon: <Clock size={20} />, color: 'stone' },
+         ].map((stat, i) => (
+           <div key={i} className="group bg-[#171412] border border-stone-800/40 rounded-[2.5rem] p-8 transition-all duration-500 hover:border-orange-600/30 hover:translate-y-[-5px] shadow-2xl relative overflow-hidden">
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-${stat.color === 'orange' ? 'orange' : stat.color === 'emerald' ? 'emerald' : 'blue'}-600/[0.03] blur-[50px] pointer-events-none`} />
+              <div className="flex justify-between items-start mb-10">
+                 <div className="w-14 h-14 rounded-2xl bg-[#0C0A09] border border-stone-800 flex items-center justify-center text-orange-600 shadow-inner group-hover:scale-110 transition-transform">
+                    {stat.icon}
+                 </div>
+                 <div className="text-[8px] font-black text-stone-800 bg-stone-900 border border-stone-800 px-3 py-1 rounded-full uppercase tracking-widest">Live</div>
               </div>
-              <h1 className="text-5xl font-black uppercase tracking-tighter leading-none">Operational Analytics</h1>
-            </div>
-          </div>
+              <p className="text-[10px] font-black text-stone-700 uppercase tracking-widest mb-2">{stat.label}</p>
+              <h3 className="text-4xl font-black text-white tracking-tighter leading-none">{stat.value}</h3>
+           </div>
+         ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Peak Hours Chart */}
+        <div className="lg:col-span-8 bg-[#171412] border border-stone-800/40 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-orange-600/[0.02] blur-[100px] pointer-events-none" />
           
-          <div className="flex gap-4">
-             <div className="bg-[#1C1917] px-6 py-4 rounded-2xl border border-stone-800 flex items-center gap-4 shadow-xl">
-                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                <span className="text-[9px] uppercase font-black tracking-[0.2em] text-stone-400">Real-time Stream: Active</span>
-             </div>
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-12">
-          {/* Summary Hub */}
-          <div className="lg:col-span-1 space-y-8">
-             <div className="bg-[#1C1917] p-10 rounded-[3rem] border border-stone-800/50 relative overflow-hidden group hover:border-[#9A3412]/30 transition-all shadow-xl flex flex-col justify-center">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#9A3412] opacity-[0.02] blur-3xl group-hover:opacity-[0.05] transition-opacity" />
-                <p className="text-[10px] uppercase font-black text-stone-600 tracking-[0.2em] mb-3">Total Demand Today</p>
-                <div className="flex items-end gap-3">
-                   <h2 className="text-5xl font-black text-[#FAFAF9] tracking-tighter">{dashboardStats?.totalTokensToday || 0}</h2>
-                   <div className="flex items-center gap-1 text-green-500 text-[10px] font-black mb-2">
-                      <TrendingUp size={12} />
-                      +12.4%
-                   </div>
+          <div className="flex justify-between items-center mb-12">
+             <div className="flex items-center gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-[#0C0A09] border border-stone-800 flex items-center justify-center text-orange-600">
+                   <Activity size={24} strokeWidth={2.5} />
                 </div>
-                <div className="mt-6 flex items-center gap-2 text-stone-700 text-[9px] font-black uppercase tracking-widest">
-                   <BarChart3 size={12} /> Peak Latency Recorded
-                </div>
-             </div>
-             
-             <div className="bg-[#1C1917] p-10 rounded-[3rem] border border-stone-800/50 relative overflow-hidden group hover:border-blue-900/30 transition-all shadow-xl flex flex-col justify-center">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-all" />
-                <p className="text-[10px] uppercase font-black text-stone-600 tracking-[0.2em] mb-3">Mean Latency</p>
-                <div className="flex items-end gap-3">
-                   <h2 className="text-5xl font-black text-[#FAFAF9] tracking-tighter">{dashboardStats?.avgWaitTime || 0}m</h2>
-                   <div className="flex items-center gap-1 text-blue-400 text-[10px] font-black mb-2">
-                      <Clock size={12} />
-                      Optimized
-                   </div>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-stone-700 text-[9px] font-black uppercase tracking-widest">
-                   <Zap size={12} /> Throughput Normalization Active
-                </div>
-             </div>
-          </div>
-
-          {/* Peak Traffic Area Chart */}
-          <div className="lg:col-span-3 bg-[#1C1917] p-12 rounded-[3.5rem] border border-stone-800/50 shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-96 h-96 bg-[#9A3412] opacity-[0.01] blur-[120px]" />
-             <div className="flex justify-between items-center mb-12">
                 <div>
-                   <h3 className="text-2xl font-black uppercase tracking-tighter flex items-center gap-4">
-                      <TrendingUp className="text-[#9A3412]" size={28} /> 
-                      Network Load Peak Distribution
-                   </h3>
-                   <p className="text-stone-600 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Temporal entity density analysis</p>
-                </div>
-                <div className="flex gap-2">
-                   <div className="w-8 h-8 rounded-lg bg-stone-900/50 border border-stone-800/30 flex items-center justify-center text-stone-600"><ChevronRight size={16} /></div>
+                   <h3 className="text-2xl font-bold uppercase tracking-tighter text-white font-display">Peak Load Density</h3>
+                   <p className="text-stone-700 text-[9px] font-black uppercase tracking-widest mt-2 ml-1 italic">Daily token distribution across operating hours</p>
                 </div>
              </div>
-             <div className="h-[320px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                   <AreaChart data={peakHours}>
-                      <defs>
-                        <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#9A3412" stopOpacity={0.4}/>
-                          <stop offset="95%" stopColor="#9A3412" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="6 6" stroke="#292524" vertical={false} opacity={0.3} />
-                      <XAxis 
-                        dataKey="hour" 
-                        stroke="#44403C" 
-                        fontSize={9} 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }}
-                      />
-                      <YAxis 
-                        stroke="#44403C" 
-                        fontSize={9} 
-                        axisLine={false} 
-                        tickLine={false} 
-                        tick={{ fontWeight: 900 }}
-                      />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#1C1917', border: '1px solid #292524', borderRadius: '24px', padding: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
-                        itemStyle={{ color: '#FAFAF9', fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.2em' }}
-                        labelStyle={{ color: '#9A3412', fontWeight: 900, marginBottom: '8px', fontSize: '9px', tracking: '0.3em' }}
-                        cursor={{ stroke: '#9A3412', strokeWidth: 1, strokeDasharray: '4 4' }}
-                      />
-                      <Area 
-                        type="monotone" 
-                        dataKey="count" 
-                        stroke="#9A3412" 
-                        strokeWidth={5} 
-                        fillOpacity={1} 
-                        fill="url(#colorCount)" 
-                        animationDuration={2000}
-                      />
-                   </AreaChart>
-                </ResponsiveContainer>
-             </div>
+          </div>
+
+          <div className="h-[400px] w-full relative z-10">
+             <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={peakHours}>
+                   <defs>
+                     <linearGradient id="loadGrad" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="5%" stopColor="#EA580C" stopOpacity={0.4}/>
+                       <stop offset="95%" stopColor="#EA580C" stopOpacity={0}/>
+                     </linearGradient>
+                   </defs>
+                   <CartesianGrid strokeDasharray="10 10" stroke="#1C1917" vertical={false} />
+                   <XAxis 
+                     dataKey="hour" 
+                     stroke="#292524" 
+                     fontSize={10} 
+                     axisLine={false} 
+                     tickLine={false} 
+                     tick={{ fontWeight: 900, fill: '#44403C' }}
+                   />
+                   <YAxis 
+                     stroke="#292524" 
+                     fontSize={10} 
+                     axisLine={false} 
+                     tickLine={false} 
+                     tick={{ fontWeight: 900, fill: '#44403C' }}
+                   />
+                   <Tooltip 
+                     contentStyle={{ backgroundColor: '#171412', border: '1px solid #292524', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: '0 20px 50px rgba(0,0,0,0.8)' }}
+                     itemStyle={{ color: '#FAFAF9', fontWeight: 900, fontSize: '12px', textTransform: 'uppercase' }}
+                     labelStyle={{ color: '#EA580C', fontWeight: 900, marginBottom: '8px', fontSize: '9px', letterSpacing: '0.2em' }}
+                     cursor={{ stroke: '#EA580C', strokeWidth: 2, strokeDasharray: '6 6' }}
+                   />
+                   <Area 
+                     type="monotone" 
+                     dataKey="count" 
+                     stroke="#EA580C" 
+                     strokeWidth={5} 
+                     fillOpacity={1} 
+                     fill="url(#loadGrad)" 
+                     animationDuration={2500}
+                     activeDot={{ r: 8, fill: '#EA580C', stroke: '#FAFAF9', strokeWidth: 3 }}
+                   />
+                </AreaChart>
+             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Personnel Performance Bar Chart */}
-          <div className="bg-[#1C1917] p-12 rounded-[3.5rem] border border-stone-800/50 shadow-2xl relative overflow-hidden">
-             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-900/5 rounded-full blur-[100px]" />
-             <h3 className="text-2xl font-black uppercase tracking-tighter mb-12 flex items-center gap-4">
-                <ShieldCheck className="text-blue-500" size={28} /> 
-                Personnel Throughput Audit
-             </h3>
-             <div className="h-[350px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={performance} layout="vertical" margin={{ left: 20 }}>
-                      <CartesianGrid stroke="#292524" horizontal={false} strokeDasharray="4 4" opacity={0.2} />
-                      <XAxis type="number" stroke="#44403C" fontSize={9} hide />
-                      <YAxis 
-                        dataKey="name" 
-                        type="category" 
-                        stroke="#D6D3D1" 
-                        fontSize={10} 
-                        width={90} 
-                        axisLine={false} 
-                        tickLine={false}
-                        tick={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}
-                      />
-                      <Tooltip 
-                        cursor={{ fill: 'rgba(154, 52, 18, 0.03)' }}
-                        contentStyle={{ backgroundColor: '#1C1917', border: '1px solid #292524', borderRadius: '20px', padding: '12px' }}
-                        itemStyle={{ color: '#FAFAF9', fontWeight: 900, fontSize: '9px', textTransform: 'uppercase' }}
-                      />
-                      <Bar 
-                        dataKey="count" 
-                        fill="#9A3412" 
-                        radius={[0, 12, 12, 0]} 
-                        barSize={18}
-                        animationDuration={1500}
-                      >
-                         {performance.map((entry, index) => (
-                           <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#9A3412' : '#C2410C'} />
-                         ))}
-                      </Bar>
-                   </BarChart>
-                </ResponsiveContainer>
+        {/* Staff Performance */}
+        <div className="lg:col-span-4 bg-[#171412] border border-stone-800/40 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/[0.02] blur-[80px] pointer-events-none" />
+          
+          <div className="flex items-center gap-6 mb-12 pb-12 border-b border-stone-800/40">
+             <div className="w-14 h-14 rounded-2xl bg-[#0C0A09] border border-stone-800 flex items-center justify-center text-blue-500 shadow-inner">
+                <Users size={24} strokeWidth={2.5} />
+             </div>
+             <div>
+                <h3 className="text-2xl font-bold uppercase tracking-tighter text-white font-display">Personnel Throughput</h3>
+                <p className="text-stone-700 text-[9px] font-black uppercase tracking-widest mt-2 ml-1 italic">Load distribution per authorized operator</p>
              </div>
           </div>
 
-          {/* Service Cluster Distribution */}
-          <div className="bg-[#1C1917] p-12 rounded-[3.5rem] border border-stone-800/50 shadow-2xl relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-[#9A3412] opacity-[0.02] blur-[100px]" />
-             <h3 className="text-2xl font-black uppercase tracking-tighter mb-12 flex items-center gap-4">
-                <PieIcon className="text-[#9A3412]" size={28} /> 
-                Subject Discipline Density
-             </h3>
-             <div className="space-y-10">
-                {dashboardStats?.serviceStats?.map((s, i) => (
-                   <div key={i} className="group">
-                     <div className="flex justify-between mb-4 items-end">
-                        <span className="text-[11px] font-black uppercase tracking-widest text-[#FAFAF9] group-hover:text-[#9A3412] transition-colors flex items-center gap-3">
-                           <div className={`w-2 h-2 rounded-full ${i % 2 === 0 ? 'bg-[#9A3412]' : 'bg-[#C2410C]'}`} />
-                           {s.name}
-                        </span>
-                        <div className="flex items-center gap-2">
-                           <span className="text-xs font-black text-[#FAFAF9]">{s.count} Flows</span>
-                           <span className="text-[9px] text-stone-600 font-bold uppercase tracking-widest">({Math.round((s.count / (dashboardStats.totalTokensToday || 1)) * 100)}%)</span>
-                        </div>
-                     </div>
-                     <div className="w-full bg-[#1F1D1B] h-3 rounded-full overflow-hidden border border-stone-800/50 shadow-inner">
-                        <div 
-                          className={`h-full transition-all duration-[2s] group-hover:brightness-125 ${i % 2 === 0 ? 'bg-gradient-to-r from-[#9A3412] to-[#C2410C]' : 'bg-gradient-to-r from-stone-800 to-stone-700'}`} 
-                          style={{ width: `${(s.count / (dashboardStats.totalTokensToday || 1)) * 100}%` }} 
-                        />
-                     </div>
-                   </div>
-                ))}
+          <div className="space-y-10">
+             {performance.length > 0 ? performance.map((staff, i) => (
+               <div key={i} className="group/perf">
+                  <div className="flex justify-between items-end mb-4">
+                     <span className="text-[10px] font-black uppercase tracking-widest text-[#D6D3D1] group-hover/perf:text-orange-500 transition-colors duration-500 truncate max-w-[150px]">{staff.name}</span>
+                     <span className="text-[12px] font-black text-white">{staff.count} TOKENS</span>
+                  </div>
+                  <div className="w-full bg-[#0C0A09] h-3 rounded-full overflow-hidden border border-stone-800/60 shadow-inner p-0.5">
+                     <div 
+                        className="h-full rounded-full bg-gradient-to-r from-orange-600 to-orange-400 transition-all duration-[3s]"
+                        style={{ width: `${(staff.count / (dashboardStats?.totalTokensToday || 1)) * 100}%` }}
+                     />
+                  </div>
+               </div>
+             )) : (
+               <div className="py-20 text-center opacity-20 flex flex-col items-center gap-6 grayscale filter">
+                  <Users size={48} strokeWidth={1} />
+                  <p className="text-[10px] font-black uppercase tracking-widest">Personnel Offline</p>
+               </div>
+             )}
+          </div>
+
+          <div className="mt-16 p-6 bg-stone-900/40 border border-stone-800/60 rounded-3xl relative overflow-hidden group/alert flex items-center gap-6">
+             <div className="absolute top-0 left-0 w-1.5 h-full bg-orange-600" />
+             <div className="w-12 h-12 bg-orange-600/10 rounded-xl flex items-center justify-center text-orange-600 shadow-inner">
+                 <Zap size={22} strokeWidth={3} className="animate-pulse" />
              </div>
-             
-             <div className="mt-14 p-8 bg-[#1F1D1B] rounded-[2.5rem] border border-stone-800 flex items-center gap-6 relative group overflow-hidden">
-                <div className="absolute top-0 left-0 w-2 h-full bg-[#9A3412] opacity-50" />
-                <div className="w-12 h-12 bg-[#9A3412]/10 rounded-2xl flex items-center justify-center text-[#9A3412]">
-                   <Info size={24} />
-                </div>
-                <p className="text-[10px] text-stone-400 font-black uppercase tracking-widest leading-relaxed pr-4">
-                   Predictive analysis suggests augmenting capacity for <span className="text-[#FAFAF9]">Finance Registry</span> during the <span className="text-[#9A3412]">09:00 - 11:30</span> peak temporal interval.
-                </p>
-             </div>
+             <p className="text-[10px] text-stone-500 font-black uppercase tracking-widest leading-relaxed flex-1 italic">
+               System Recommendation: Optimized allocation detected for Unit-04 based on surge patterns.
+             </p>
           </div>
         </div>
       </div>

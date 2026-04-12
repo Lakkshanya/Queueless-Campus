@@ -12,16 +12,16 @@ const Welcome = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#1C1917] flex flex-col items-center justify-between py-16 px-6 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#1C1917] flex flex-col items-center justify-between py-5 px-6 font-sans relative overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_-20%,#9A341215,transparent_50%)]" />
-      <div className="absolute bottom-[-100px] left-[-100px] w-96 h-96 bg-[#9A3412]/5 blur-[100px] rounded-full" />
+      <div className="absolute bottom-[-100px] left-[-100px] w-64 h-64 bg-[#9A3412]/5 blur-[100px] rounded-full" />
 
       <div className="flex-1 flex flex-col items-center justify-center max-w-2xl text-center relative z-10">
         {/* Animated Brand Mark */}
-        <div className="relative mb-12 group">
-          <div className="w-32 h-32 bg-gradient-to-br from-[#9A3412] to-[#7C2D12] rounded-[2.5rem] rotate-12 flex items-center justify-center shadow-[0_20px_50px_rgba(154,52,18,0.3)] border border-[#9A3412]/20 animate-in zoom-in-50 duration-700">
-            <div className="text-white text-6xl font-black -rotate-12 tracking-tighter drop-shadow-2xl select-none">Q</div>
+        <div className="relative mb-6 group">
+          <div className="w-20 h-20 bg-gradient-to-br from-[#9A3412] to-[#7C2D12] rounded-2xl rotate-12 flex items-center justify-center shadow-[0_20px_50px_rgba(154,52,18,0.3)] border border-[#9A3412]/20 animate-in zoom-in-50 duration-700">
+            <div className="text-white text-lg font-black -rotate-12 tracking-tighter drop-shadow-2xl select-none">Q</div>
           </div>
           <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[#292524] border border-stone-800 rounded-xl flex items-center justify-center shadow-lg animate-bounce duration-[2000ms]">
             <Zap className="text-[#9A3412]" size={18} fill="currentColor" />
@@ -29,22 +29,22 @@ const Welcome = () => {
         </div>
         
         <div className="animate-in slide-in-from-bottom-4 duration-700 delay-200">
-          <h1 className="text-[#FAFAF9] text-5xl font-black tracking-tighter lowercase flex items-center gap-1">
-            queue<span className="text-[#9A3412] uppercase font-bold text-4xl tracking-normal">Less</span>
+          <h1 className="text-[#FAFAF9] text-xl font-black tracking-tighter lowercase flex items-center gap-1">
+            queue<span className="text-[#9A3412] uppercase font-bold text-lg tracking-normal">Less</span>
           </h1>
-          <p className="text-[#9A3412] text-[11px] uppercase tracking-[0.6em] mb-12 font-black opacity-90 flex items-center justify-center gap-3">
+          <p className="text-[#9A3412] text-[11px] uppercase tracking-[0.6em] mb-6 font-black opacity-90 flex items-center justify-center gap-3">
             <span className="h-[1px] w-4 bg-[#9A3412]/30"></span>
             Campus Administration v2.0
             <span className="h-[1px] w-4 bg-[#9A3412]/30"></span>
           </p>
           
-          <p className="text-[#D6D3D1] text-lg mb-12 leading-relaxed font-medium px-8 opacity-80 max-w-md mx-auto">
+          <p className="text-[#D6D3D1] text-lg mb-6 leading-relaxed font-medium px-5 opacity-80 max-w-md mx-auto">
             Manage campus operations with ease. Coordinate staff, monitor service queues, and verify student records in one professional dashboard.
           </p>
         </div>
 
         {/* Feature Highlights */}
-        <div className="grid grid-cols-2 gap-4 w-full mb-12 animate-in fade-in duration-1000 delay-500">
+        <div className="grid grid-cols-2 gap-4 w-full mb-6 animate-in fade-in duration-1000 delay-500">
           <div className="bg-[#292524]/50 border border-stone-800 p-4 rounded-2xl flex flex-col items-center gap-2">
             <ShieldCheck className="text-[#9A3412]" size={20} />
             <span className="text-[#FAFAF9] text-[10px] font-black uppercase tracking-widest">Admin Control</span>

@@ -69,20 +69,20 @@ const ProfileCompletion = () => {
 
   return (
     <div className="min-h-screen bg-[#1C1917] flex items-center justify-center p-6 font-sans">
-      <div className="bg-[#292524] w-full max-w-4xl p-12 rounded-[40px] border border-stone-800 shadow-2xl relative overflow-hidden">
+      <div className="bg-[#292524] w-full max-w-4xl p-6 rounded-[40px] border border-stone-800 shadow-2xl relative overflow-hidden">
         {/* Subtle background glow */}
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#9A3412] opacity-10 blur-[100px]"></div>
         
-        <div className="text-center mb-12 relative z-10">
+        <div className="text-center mb-6 relative z-10">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-[#9A3412]/10 rounded-2xl mb-6 border border-[#9A3412]/20 shadow-inner">
             <User className="text-[#9A3412]" size={32} />
           </div>
-          <h1 className="text-4xl font-black text-[#FAFAF9] mb-3 uppercase tracking-tighter">Complete Profile</h1>
+          <h1 className="text-lg font-black text-[#FAFAF9] mb-3 uppercase tracking-tighter">Complete Profile</h1>
           <p className="text-[#D6D3D1] font-bold text-[10px] uppercase tracking-[4px] opacity-60">Setting up authorized {user?.role.toUpperCase()} credentials</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             
             {/* Common: Employee/Admin ID */}
             <div className="space-y-2">
