@@ -13,21 +13,22 @@ Before you begin, ensure you have the following installed:
 - **Redis Server**: Required for real-time queuing ([Download](https://redis.io/download/))
 - **Android Studio**: Configured with Android SDK and Emulator ([Setup Guide](https://developer.android.com/studio))
 - **Java Development Kit (JDK)**: v17+ (Required for Android builds)
-- **Git**: For version control (Optional)
+- **Cloudflared**: (Optional) Recommended for creating public tunnels for mobile testing.
+- **Git**: For version control.
 
 ---
 
 ## 📂 Project Structure
 
-- `/backend`: Node.js/Express API.
-- `/admin-panel`: React/Vite Administrative & Staff Dashboard.
-- `/FrontendMobileApp`: React Native CLI Student Application.
+- `/backend`: Node.js/Express API with Socket.io.
+- `/admin-panel`: React/Vite Administrative & Staff Dashboard (Dual Role).
+- `/FrontendMobileApp`: React Native Student & Staff Application (Dual Role).
 
 ---
 
 ## 🏗️ 1. Backend Setup
 
-The backend serves as the core API and manages real-time updates via Socket.io.
+The backend serves as the core API and manages real-time updates.
 
 1. **Navigate to the directory**:
    ```bash
@@ -38,7 +39,7 @@ The backend serves as the core API and manages real-time updates via Socket.io.
    npm install
    ```
 3. **Environment Configuration**:
-   Create a `.env` file in the `backend/` directory and add the following:
+   Create a `.env` file in the `backend/` directory:
    ```env
    PORT=8989
    MONGO_URI=mongodb://localhost:27017/queueless-campus
@@ -54,21 +55,24 @@ The backend serves as the core API and manages real-time updates via Socket.io.
    ```
 4. **Firebase Configuration**:
    - Ensure the server account JSON file is placed at `backend/config/queuelesscampus-6246c-firebase-adminsdk-fbsvc-9543351b31.json`.
-   - *Note: If this file is missing, FCM notifications will be disabled.*
+   - *Note: This is required for FCM notifications to function.*
 5. **Start the server**:
    ```bash
    # Development Mode
    npm run dev
-   
-   # Production Mode
-   npm start
    ```
+6. **Start Tunnel (Optional for Mobile Testing)**:
+   If you are test on a physical device, run the PowerShell script to create a tunnel:
+   ```powershell
+   ./start-tunnel.ps1
+   ```
+   *Copy the generated `.trycloudflare.com` URL for the Mobile App config.*
 
 ---
 
 ## 🖥️ 2. Admin Panel Setup
 
-The admin panel is a React-based web dashboard.
+The admin panel serves **Admins** (for management) and **Staff** (for queue operations).
 
 1. **Navigate to the directory**:
    ```bash
@@ -83,13 +87,13 @@ The admin panel is a React-based web dashboard.
    npm run dev
    ```
 4. **Access the dashboard**:
-   Open [http://localhost:5173](http://localhost:5173) in your browser.
+   Open [http://localhost:5173](http://localhost:5173). Log in as Admin or Staff.
 
 ---
 
-## 📱 3. Mobile App (Student) Setup
+## 📱 3. Mobile App (Student & Staff) Setup
 
-The mobile app is built with React Native CLI.
+The mobile app supports both **Student** and **Staff** interfaces via role-based navigation.
 
 1. **Navigate to the directory**:
    ```bash
@@ -99,31 +103,38 @@ The mobile app is built with React Native CLI.
    ```bash
    npm install
    ```
-3. **Start the Metro Bundler**:
-   In a dedicated terminal window:
+3. **Update API Configuration**:
+   Edit `src/constants/config.ts`:
+   ```typescript
+   export const API_URL = 'https://YOUR_TUNNEL_URL.trycloudflare.com/api';
+   export const BASE_URL = 'https://YOUR_TUNNEL_URL.trycloudflare.com';
+   ```
+4. **Start the Metro Bundler**:
    ```bash
    npx react-native start
    ```
-4. **Run on Android**:
-   Ensure an emulator is running or a physical device is connected via USB:
+5. **Run on Android**:
    ```bash
    npx react-native run-android
    ```
 
 ---
 
-## 🗄️ 4. Version Control & Contributions
+## 🔑 Operational Flow
 
-This project is configured as a **monorepo**. To ensure a clean contribution process:
+1. **Admin Setup**: Create Services and Staff accounts via the Admin Panel.
+2. **Staff Activation**: Staff must log in and click **"Start Session"** to begin accepting students.
+3. **Student Flow**: Students join the queue via the Mobile App and receive real-time notifications (Serving, Next, Prepare).
 
-1. **Single Git Repository**: The entire project uses a single `.git` directory at the absolute root folder (`Queueless-Campus/`). Ensure there are no nested `.git` folders in any of the subdirectories (such as `FrontendMobileApp/`).
-2. **Global `.gitignore`**: The root `.gitignore` is pre-configured to handle all dependencies comprehensively. When you push code, it will automatically ignore:
-   - `node_modules/` across all projects
-   - Environment variables (`.env`, `.env.local`)
-   - Logs, caches, and crash reports (`npm-debug.log`, etc.)
-   - Platform-specific build artifacts (`.expo/`, `android/app/build/`, `ios/Pods/`, `.next`, `dist/`)
-   - Sensitive Firebase configurations (`backend/config/*.json`)
-3. **Environment Secrets**: Never commit sensitive configuration files. Provide `.env.example` equivalents instead.
+---
+
+## 🗄️ 4. Version Control
+
+This project is a monorepo. 
+
+- **Root Git**: Only one `.git` folder exists at the project root.
+- **Gitignore**: Pre-configured to ignore all `node_modules`, `.env` files, and build artifacts.
+- **Pushing**: Use `git push origin main` from the root folder.
 
 ---
 
@@ -134,7 +145,9 @@ This project is configured as a **monorepo**. To ensure a clean contribution pro
 > `npx react-native start --reset-cache`
 
 > [!IMPORTANT]
-> **MongoDB Connection**: Ensure your MongoDB service is running before starting the backend. If using Atlas, replace the `MONGO_URI` in `.env` with your string.
+> **MongoDB & Redis**: Both services must be running for the backend to start. 
+> Default ports: MongoDB (27017), Redis (6379).
 
 > [!WARNING]
-> **Redis Connection**: If the backend crashes with "Could not connect to Redis", ensure the Redis server is started on port 6379.
+> **Notification Failures**: If notifications aren't arriving, verify that the `backend/config` JSON file is valid and the device has an active internet connection.
+
