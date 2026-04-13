@@ -34,10 +34,27 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     super.onCreate()
+    createNotificationChannel()
     SoLoader.init(this, false)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
+  }
+
+  private fun createNotificationChannel() {
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+          val channelId = "high_importance_channel"
+          val channelName = "High Importance Notifications"
+          val channelDescription = "Critical operational alerts and queue positions"
+          val importance = android.app.NotificationManager.IMPORTANCE_HIGH
+          val channel = android.app.NotificationChannel(channelId, channelName, importance).apply {
+              description = channelDescription
+              enableVibration(true)
+          }
+          val notificationManager: android.app.NotificationManager =
+              getSystemService(android.content.Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+          notificationManager.createNotificationChannel(channel)
+      }
   }
 }

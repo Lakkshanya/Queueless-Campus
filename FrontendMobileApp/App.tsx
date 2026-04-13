@@ -25,6 +25,7 @@ import {setAuth, setLoading} from './src/store/slices/authSlice';
 import {setServerUrl} from './src/store/slices/configSlice';
 import {socketService} from './src/services/socket';
 import ProfileCompletionScreen from './src/screens/auth/ProfileCompletionScreen';
+import InactivityOverlay from './src/components/InactivityOverlay';
 
 const Stack = createStackNavigator();
 
@@ -170,6 +171,8 @@ const AppContent = () => {
         </View>
       </Modal>
       
+      {user && <InactivityOverlay />}
+
       <Stack.Navigator id="root" screenOptions={{headerShown: false}}>
         {user ? (
           !user.profileCompleted ? (

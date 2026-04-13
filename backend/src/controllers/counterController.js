@@ -13,7 +13,7 @@ export const createCounter = async (req, res) => {
     // Check if counter number exists
     const existing = await Counter.findOne({ number });
     if (existing) {
-      return res.status(400).json({ message: 'Counter number already defined in the registry.' });
+      return res.status(400).json({ message: 'Station number is already configured in the system.' });
     }
 
     const counter = new Counter({
@@ -26,7 +26,7 @@ export const createCounter = async (req, res) => {
     await counter.save();
     res.status(201).json(counter);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to initialize terminal.', error: error.message });
+    res.status(500).json({ message: 'Failed to create station.', error: error.message });
   }
 };
 
@@ -48,7 +48,15 @@ export const assignStaff = async (req, res) => {
     await counter.save();
 
     // Update User
-    await User.findByIdAndUpdate(staffId, { assignedCounter: counterId });
+    // Notify Staff
+    const msg = `You have been assigned to Station ${counter.number}.`;
+    await Notification.create({
+      user: staffId,
+      title: "Station Assignment",
+      message: msg,
+      type: 'info'
+    });
+    await sendNotification(staffId, "Station Assignment", msg, { type: 'info' });
 
     res.json({ message: 'Staff assigned successfully', counter });
   } catch (error) {
@@ -90,7 +98,7 @@ export const callNext = async (req, res) => {
       return res.json({ message: 'Queue empty', counter });
     }
 
-    nextToken.status = 'processing';
+    nextToken.status = 'serving';
     await nextToken.save();
 
     counter.currentToken = nextToken._id;
@@ -102,7 +110,7 @@ export const callNext = async (req, res) => {
     io.emit('queueUpdated', { counterId });
     
     if (nextToken) {
-      const msg = "It's your turn! Please proceed to the counter.";
+      const msg = "Your turn! Please proceed to the service station.";
       io.to(nextToken.student.toString()).emit('turnApproaching', { 
         token: nextToken,
         message: msg
@@ -110,23 +118,24 @@ export const callNext = async (req, res) => {
       // Save to DB
       await Notification.create({
         user: nextToken.student,
-        title: "Your Turn!",
+        title: "Now Serving",
         message: msg,
         type: 'turn'
       });
 
       // Send Push Notification
-      await sendNotification(nextToken.student, "Your Turn!", msg, { type: 'turn' });
+      await sendNotification(nextToken.student, "Now Serving", msg, { type: 'turn' });
     }
 
-    // Notify top 5 waiting students
-    const topWaiting = await Token.find({ counter: counterId, status: 'waiting' })
+    // Notify exactly 2 waiting students (The Loop)
+    const nextInLine = await Token.find({ counter: counterId, status: 'waiting' })
       .sort({ bookedAt: 1 })
-      .limit(5);
+      .limit(2);
 
-    for (const [idx, t] of topWaiting.entries()) {
+    for (const [idx, t] of nextInLine.entries()) {
       const position = idx + 1;
-      const msg = position === 1 ? "Your turn is next!" : `Only ${position} tokens left ahead of you.`;
+      const msg = position === 1 ? "You are Next: Please proceed to the waiting area." : "Please be ready: Your turn is approaching.";
+      const title = position === 1 ? "You are Next" : "Be Ready";
       
       io.to(t.student.toString()).emit('turnApproaching', {
         position,
@@ -136,13 +145,13 @@ export const callNext = async (req, res) => {
       // Save to DB
       await Notification.create({
         user: t.student,
-        title: "Queue Update",
+        title: title,
         message: msg,
         type: 'alert'
       });
 
       // Send Push Notification
-      await sendNotification(t.student, "Queue Update", msg, { type: 'alert', position: position.toString() });
+      await sendNotification(t.student, title, msg, { type: 'alert', position: position.toString() });
     }
 
     res.json({ message: 'Next token called', token: nextToken, counter });
@@ -172,7 +181,7 @@ export const getMyCounter = async (req, res) => {
           { path: 'student', select: 'name' }
         ]
       })
-      .populate('service');
+      .populate('services');
     
     if (!counter) return res.status(404).json({ message: 'No counter assigned to this staff member' });
 

@@ -8,7 +8,7 @@ Write-Host "Starting Cloudflare Tunnel..." -ForegroundColor Yellow
 Write-Host "Wait for the 'trycloudflare.com' link to appear below." -ForegroundColor Gray
 
 # Start cloudflared and pipe output to a file and display it
-./cloudflared.exe tunnel --url http://localhost:8989 2>&1 | Tee-Object -FilePath "tunnel_current.log" | ForEach-Object {
+npx cloudflared tunnel --url http://localhost:8989 2>&1 | Tee-Object -FilePath "tunnel_current.log" | ForEach-Object {
     if ($_ -match "https://.*\.trycloudflare\.com") {
         $url = $matches[0]
         Write-Host "`n===============================================" -ForegroundColor Green

@@ -8,7 +8,7 @@ import Notification from '../models/Notification.js';
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/queueless';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/queueless-campus';
 
 const clearDatabase = async () => {
   try {

@@ -1,5 +1,6 @@
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
+import Token from '../models/Token.js';
 import { sendNotification } from '../utils/notificationService.js';
 
 export const getNotifications = async (req, res) => {
@@ -56,7 +57,7 @@ export const notifyAdmin = async (req, res) => {
 
     const notifications = admins.map(a => ({
       user: a._id,
-      title: `Staff Alert from ${req.user.name}`,
+      title: `Staff Alert: ${req.user.name}`,
       message,
       type: 'staff_alert'
     }));
@@ -64,10 +65,45 @@ export const notifyAdmin = async (req, res) => {
     await Notification.insertMany(notifications);
 
     admins.forEach(a => {
-      sendNotification(a._id.toString(), `Staff Alert from ${req.user.name}`, message, { type: 'staff_alert' });
+      sendNotification(a._id.toString(), `Staff Alert: ${req.user.name}`, message, { type: 'staff_alert' });
     });
 
     res.json({ message: 'Admin notified successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const staffTargetedBroadcast = async (req, res) => {
+  try {
+    const { serviceId, message } = req.body;
+    
+    // Find all users who have an active or waiting token for this service
+    const activeTokens = await Token.find({ 
+      service: serviceId, 
+      status: { $in: ['waiting', 'serving'] } 
+    }).populate('student');
+
+    if (activeTokens.length === 0) {
+      return res.status(404).json({ message: 'No active students found for this service' });
+    }
+
+    const uniqueStudentIds = [...new Set(activeTokens.map(t => t.student._id.toString()))];
+    
+    const notifications = uniqueStudentIds.map(sid => ({
+      user: sid,
+      title: `Update from ${req.user.name}`,
+      message,
+      type: 'staff_broadcast'
+    }));
+
+    await Notification.insertMany(notifications);
+
+    uniqueStudentIds.forEach(sid => {
+      sendNotification(sid, `Update from ${req.user.name}`, message, { type: 'staff_broadcast' });
+    });
+
+    res.json({ message: `Message dispatched to ${uniqueStudentIds.length} students` });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

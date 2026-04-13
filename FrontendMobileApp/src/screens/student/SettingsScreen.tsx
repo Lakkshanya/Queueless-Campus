@@ -28,7 +28,6 @@ import {clearAuth} from '../../store/slices/authSlice';
 import {useAuth} from '../../context/AuthContext';
 import {setServerUrl} from '../../store/slices/configSlice';
 import {updateApiBaseURL} from '../../services/api';
-
 const SettingsScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
@@ -38,7 +37,6 @@ const SettingsScreen = () => {
   const {serverUrl} = useAppSelector(state => state.config);
   const [showConfigModal, setShowConfigModal] = React.useState(false);
   const [newServerUrl, setNewServerUrl] = React.useState(serverUrl);
-
   const toggleNotifications = () => {
     setIsNotificationsEnabled(previousState => !previousState);
     Alert.alert(
@@ -59,7 +57,6 @@ const SettingsScreen = () => {
     setShowConfigModal(false);
     Alert.alert('Success', 'Server configuration updated!');
   };
-
   const handleAction = (label: string) => {
     switch (label) {
       case 'Security & Password':
@@ -97,7 +94,6 @@ const SettingsScreen = () => {
         break;
     }
   };
-
   const settingsOptions = [
     {
       label: 'Push Notifications',
@@ -125,38 +121,30 @@ const SettingsScreen = () => {
       sub: 'System default',
     },
   ];
-
   return (
-    <ScrollView className="flex-1 bg-background px-6 pt-12">
-      <View className="flex-row items-center mb-8">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4">
-          <ArrowLeft color="#D6D3D1" size={24} />
-        </TouchableOpacity>
-        <Text className="text-textPrimary text-2xl font-bold">
+    <ScrollView
+      className="flex-1 bg-background px-6 pt-12"
+      contentContainerStyle={{paddingBottom: 120}}><View className="flex-row items-center mb-8"><TouchableOpacity onPress={() => navigation.goBack()} className="mr-4"><ArrowLeft color="#D6D3D1" size={24} /></TouchableOpacity><Text className="text-textPrimary text-2xl font-bold tracking-tight">
+          
           Account Settings
-        </Text>
-      </View>
-
-      <View className="space-y-4">
+        </Text></View><View className="space-y-4">
+        
         {settingsOptions.map((item, i) => (
           <View
             key={i}
-            className="bg-card rounded-xl p-4 flex-row items-center justify-between border border-stone-800 mb-4">
-            <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-background rounded-lg items-center justify-center mr-4">
+            className="bg-card rounded-xl p-4 flex-row items-center justify-between border border-stone-800 mb-4"><View className="flex-row items-center"><View className="w-10 h-10 bg-background rounded-lg items-center justify-center mr-4">
+                
                 {item.icon}
-              </View>
-              <View>
-                <Text className="text-textPrimary font-bold">{item.label}</Text>
-                <Text className="text-[#78716C] text-[10px]">{item.sub}</Text>
+              </View><View><Text className="text-textPrimary font-bold tracking-tight">
+                  {item.label}
+                </Text><Text className="text-[#78716C] text-xs">{item.sub}</Text>
                 {item.value ? (
-                  <Text className="text-primary text-[10px] font-bold uppercase mt-1">
+                  <Text className="text-primary text-xs font-bold tracking-tight mt-1">
+                    
                     {item.value}
                   </Text>
                 ) : null}
-              </View>
-            </View>
-
+              </View></View>
             {item.type === 'switch' ? (
               <Switch
                 trackColor={{false: '#44403C', true: '#9A3412'}}
@@ -165,64 +153,42 @@ const SettingsScreen = () => {
                 value={isNotificationsEnabled}
               />
             ) : (
-              <TouchableOpacity onPress={() => handleAction(item.label)}>
-                <ChevronRight color="#44403C" size={18} />
-              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleAction(item.label)}><ChevronRight color="#44403C" size={18} /></TouchableOpacity>
             )}
           </View>
         ))}
-      </View>
-
-      <Modal
+      </View><Modal
         animationType="slide"
         transparent={true}
         visible={showPrivacy}
-        onRequestClose={() => setShowPrivacy(false)}>
-        <View className="flex-1 justify-end bg-black/60">
-          <View className="bg-card rounded-t-[40px] p-8 border-t border-stone-800 h-3/4">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-textPrimary text-2xl font-black uppercase tracking-widest">
+        onRequestClose={() => setShowPrivacy(false)}><View className="flex-1 justify-end bg-black/60"><View className="bg-card rounded-t-[40px] p-8 border-t border-stone-800 h-3/4"><View className="flex-row justify-between items-center mb-6"><Text className="text-textPrimary text-2xl font-bold tracking-tight">
+                
                 Privacy Policy
-              </Text>
-              <TouchableOpacity
+              </Text><TouchableOpacity
                 onPress={() => setShowPrivacy(false)}
-                className="bg-stone-800 p-2 rounded-full">
-                <X color="#D6D3D1" size={20} />
-              </TouchableOpacity>
-            </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text className="text-textSecondary leading-6 mb-4">
+                className="bg-stone-800 p-2 rounded-full"><X color="#D6D3D1" size={20} /></TouchableOpacity></View><ScrollView showsVerticalScrollIndicator={false}><Text className="text-textSecondary leading-6 mb-4">
+                
                 At QueueLess, we prioritize your data security. Your college
                 credentials are encrypted and used solely for student
                 verification within the secure system.
-              </Text>
-              <Text className="text-primary font-bold mb-2">
+              </Text><Text className="text-primary font-bold tracking-tight mb-2">
+                
                 1. Data Collection
-              </Text>
-              <Text className="text-textSecondary leading-6 mb-4">
+              </Text><Text className="text-textSecondary leading-6 mb-4">
+                
                 We store your name, email, and department to facilitate service
                 tokens and administrative communication.
-              </Text>
-              <Text className="text-primary font-bold mb-2">
+              </Text><Text className="text-primary font-bold tracking-tight mb-2">
+                
                 2. Real-time Service
-              </Text>
-              <Text className="text-textSecondary leading-6 mb-4">
+              </Text><Text className="text-textSecondary leading-6 mb-4">
+                
                 Live queue data is processed using high-performance systems to
                 ensure immediate updates without compromising privacy.
-              </Text>
-              <View className="h-10" />
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
-      <View className="mt-10 items-center">
-        <Text className="text-textSecondary text-[10px] tracking-[4px] uppercase">
+              </Text><View className="h-10" /></ScrollView></View></View></Modal><View className="mt-10 items-center"><Text className="text-textSecondary text-xs">
+          
           QueueLess Campus • Version 1.0.0
-        </Text>
-      </View>
-    </ScrollView>
+        </Text></View></ScrollView>
   );
 };
-
 export default SettingsScreen;

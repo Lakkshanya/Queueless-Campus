@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -8,8 +7,8 @@
   --color-bg-card: #171412;
   --color-stone-border: rgba(41, 37, 36, 0.4);
   
-  --font-sans: 'Times New Roman', Times, serif;
-  --font-display: 'Times New Roman', Times, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 :root {
@@ -23,9 +22,17 @@
 body {
   background-color: var(--bg-main);
   color: #FAFAF9;
-  font-family: var(--font-sans);
+  font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* Fix for "word per line" issue - ensures text can wrap properly but doesn't squeeze */
+.text-wrap-safe {
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 h1, h2, h3, h4, h5, h6 {

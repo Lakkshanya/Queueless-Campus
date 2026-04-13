@@ -4,33 +4,46 @@ import Service from '../models/Service.js';
 import Sequence from '../models/Sequence.js';
 import redisClient from '../config/redis.js';
 import Notification from '../models/Notification.js';
+import { sendNotification } from '../utils/notificationService.js';
 
 export const bookToken = async (req, res) => {
   try {
     const { serviceId } = req.body;
     const studentId = req.user.id;
 
+    console.log(`[DEBUG] Attempting to book token for Service: ${serviceId}, Student: ${studentId}`);
+
     const service = await Service.findById(serviceId);
-    if (!service) return res.status(404).json({ message: 'Service not found' });
-
-    // Find the counter with the least workload for this service
-    const counters = await Counter.find({ 
-      status: 'active', 
-      services: serviceId 
-    }).sort({ workload: 1 });
-
-    if (counters.length === 0) {
-      return res.status(404).json({ message: 'No active counters for this service' });
+    if (!service) {
+      console.error(`[ERROR] Service not found: ${serviceId}`);
+      return res.status(404).json({ message: 'Service not found' });
     }
 
-    const assignedCounter = counters[0];
+    // Find the assigned counter attached to this service
+    if (!service.assignedCounter) {
+      console.error(`[ERROR] No counters found for Service: ${serviceId}`);
+      return res.status(404).json({ message: 'No counters have been assigned to this service node yet.' });
+    }
+
+    const assignedCounter = await Counter.findById(service.assignedCounter);
+    if (!assignedCounter) {
+      return res.status(404).json({ message: 'The assigned counter could not be located in the operational grid.' });
+    }
+    console.log(`[DEBUG] Assigned to Counter: ${assignedCounter.number} (ID: ${assignedCounter._id})`);
 
     // Generate Sequential Token Number
-    const sequence = await Sequence.findOneAndUpdate(
-      { serviceId },
-      { $inc: { sequence_value: 1 } },
-      { upsert: true, new: true }
-    );
+    let sequence;
+    try {
+      sequence = await Sequence.findOneAndUpdate(
+        { serviceId },
+        { $inc: { sequence_value: 1 } },
+        { upsert: true, new: true }
+      );
+      console.log(`[DEBUG] Sequence generated: ${sequence.sequence_value}`);
+    } catch (seqError) {
+      console.error(`[ERROR] Sequence generation failed: ${seqError.message}`);
+      throw seqError;
+    }
 
     const tokenNumber = `${service.prefix}-${sequence.sequence_value.toString().padStart(3, '0')}`;
 
@@ -45,6 +58,7 @@ export const bookToken = async (req, res) => {
     });
 
     await newToken.save();
+    console.log(`[DEBUG] Token saved successfully: ${tokenNumber}`);
 
     // Invalidate Redis cache
     await redisClient.del(`active_token:${studentId}`);
@@ -58,7 +72,6 @@ export const bookToken = async (req, res) => {
     io.emit('tokenBooked', newToken);
     io.to(assignedCounter._id.toString()).emit('queueUpdated', { counterId: assignedCounter._id });
 
-    // Auto-generate Notification
     await Notification.create({
       user: studentId,
       title: 'Token Booked',
@@ -66,8 +79,13 @@ export const bookToken = async (req, res) => {
       type: 'info'
     });
 
-    res.status(201).json(newToken);
+    // FCM Notification
+    sendNotification(studentId, 'Token Booked', `Your token ${tokenNumber} is ready. Track your position in the Live Queue.`, { type: 'token_booked' });
+
+    console.log(`[DEBUG] Booking flow complete for Token: ${tokenNumber}`);
+    res.status(201).json({ token: newToken });
   } catch (error) {
+    console.error(`[FATAL ERROR] Booking failed: ${error.stack}`);
     res.status(500).json({ message: error.message });
   }
 };
@@ -79,22 +97,47 @@ export const startToken = async (req, res) => {
     if (!token) return res.status(404).json({ message: 'Token not found' });
 
     token.status = 'serving';
+    token.startTime = new Date();
     await token.save();
 
-    // Notify Socket
+    // Update Counter currentToken
+    if (token.counter) {
+        await Counter.findByIdAndUpdate(token.counter, { currentToken: token._id });
+    }
+
+    // 🎯 3-LEVEL LOOP NOTIFICATION LOGIC
+    // Notify the current student
     const io = req.app.get('io');
     io.to(token.student._id.toString()).emit('tokenStarted', { 
         tokenId: token._id, 
         message: 'Your turn has arrived! Please proceed to the counter.' 
     });
 
-    // Auto-generate Notification
     await Notification.create({
       user: token.student._id,
       title: 'Now Serving',
       message: `Your turn for ${token.service.name} has started. Please proceed to the counter.`,
       type: 'alert'
     });
+    sendNotification(token.student._id.toString(), 'Now Serving', 'Your turn! Please proceed to the counter immediately.', { type: 'token_started' });
+
+    // Notify the next 2 students in the waiting grid for this specific counter
+    const nextTokens = await Token.find({
+      counter: token.counter,
+      status: 'waiting'
+    }).sort({ bookedAt: 1 }).limit(2).populate('student');
+
+    if (nextTokens.length > 0) {
+      // 2nd Position: "You are Next"
+      const t2 = nextTokens[0];
+      sendNotification(t2.student._id.toString(), 'You are Next', 'Please be ready, you are the next person in line.', { type: 'token_next' });
+      
+      if (nextTokens.length > 1) {
+        // 3rd Position: "2 people before you"
+        const t3 = nextTokens[1];
+        sendNotification(t3.student._id.toString(), 'Prepare Yourself', 'There are 2 people before you. Please stay close to the counter.', { type: 'token_prepare' });
+      }
+    }
 
     res.json({ message: 'Service started', token });
   } catch (error) {
@@ -111,26 +154,27 @@ export const completeToken = async (req, res) => {
     token.status = 'completed';
     await token.save();
 
-    // Update Counter workload
+    // Update Counter: Clear currentToken and decrement workload
     if (token.counter) {
-        const counter = await Counter.findById(token.counter._id);
-        if (counter && counter.workload > 0) {
-            counter.workload -= 1;
-            await counter.save();
-        }
+        await Counter.findByIdAndUpdate(token.counter._id, { 
+            currentToken: null,
+            $inc: { workload: -1 }
+        });
     }
 
     // Notify Socket
     const io = req.app.get('io');
     io.to(token.student._id.toString()).emit('tokenCompleted', { tokenId: token._id });
 
-    // Auto-generate Notification
     await Notification.create({
       user: token.student._id,
       title: 'Service Completed',
       message: `Thank you. Your session for ${token.service.name} is complete.`,
       type: 'success'
     });
+
+    // FCM Notification
+    sendNotification(token.student._id.toString(), 'Service Completed', `Your session for ${token.service.name} is complete. Thank you!`, { type: 'token_completed' });
 
     res.json({ message: 'Service completed', token });
   } catch (error) {
@@ -162,10 +206,20 @@ export const getStudentStatus = async (req, res) => {
       bookedAt: { $lt: token.bookedAt }
     });
 
+    // Fetch Preview Queue (Top 3 tokens for this counter)
+    const preview = await Token.find({
+      counter: token.counter?._id,
+      status: { $in: ['serving', 'waiting'] }
+    })
+    .sort({ status: -1, bookedAt: 1 }) // 'serving' first, then 'waiting' by time
+    .limit(3)
+    .select('number status');
+
     res.json({
       token,
       ahead,
-      wait: ahead * (token.service?.estimatedTimePerToken || 10)
+      wait: ahead * (token.service?.timePerStudent || 10),
+      preview
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -11,7 +11,7 @@ class FCMService {
   async checkPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
-      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.Authorized ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
     if (enabled) {

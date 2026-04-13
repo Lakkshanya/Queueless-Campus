@@ -5,9 +5,7 @@ import StudentDashboard from '../screens/student/StudentDashboard';
 import LiveQueueScreen from '../screens/student/LiveQueueScreen';
 import NotificationsScreen from '../screens/student/NotificationsScreen';
 import ProfileScreen from '../screens/student/ProfileScreen';
-
 const Tab = createBottomTabNavigator();
-
 const StudentTabs = () => {
   return (
     <Tab.Navigator
@@ -23,10 +21,7 @@ const StudentTabs = () => {
         },
         tabBarActiveTintColor: '#C2410C',
         tabBarInactiveTintColor: '#D6D3D1',
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: 'bold',
-        },
+        tabBarLabelStyle: {fontSize: 10, fontWeight: 'bold'},
         tabBarIcon: ({color, size}) => {
           if (route.name === 'Home') {
             return <LayoutDashboard size={size} color={color} />;
@@ -41,13 +36,7 @@ const StudentTabs = () => {
             return <User size={size} color={color} />;
           }
         },
-      })}>
-      <Tab.Screen name="Home" component={StudentDashboard} />
-      <Tab.Screen name="Live Queue" component={LiveQueueScreen} />
-      <Tab.Screen name="Notifications" component={NotificationsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-    </Tab.Navigator>
+      })}><Tab.Screen name="Home" component={StudentDashboard} /><Tab.Screen name="Live Queue" component={LiveQueueScreen} /><Tab.Screen name="Notifications" component={NotificationsScreen} /><Tab.Screen name="Profile" component={ProfileScreen} /></Tab.Navigator>
   );
 };
-
 export default StudentTabs;

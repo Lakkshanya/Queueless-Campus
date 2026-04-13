@@ -13,6 +13,15 @@ export const sendNotification = async (userId, title, body, data = {}) => {
       notification: { title, body },
       data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
       token: user.fcmToken,
+      android: {
+        priority: 'high',
+        notification: {
+          sound: 'default',
+          channelId: 'high_importance_channel',
+          priority: 'max',
+          visibility: 'public'
+        }
+      }
     };
 
     const response = await admin.messaging().send(message);
@@ -23,21 +32,43 @@ export const sendNotification = async (userId, title, body, data = {}) => {
   }
 };
 
-export const broadcastNotification = async (role, title, body, data = {}) => {
+export const broadcastNotification = async (target, title, body, data = {}) => {
   try {
-    const users = await User.find({ role, fcmToken: { $ne: null } });
+    let query = { fcmToken: { $ne: null } };
+    
+    if (target === 'students') {
+      query.role = 'student';
+    } else if (target === 'staff') {
+      query.role = 'staff';
+    } else if (target !== 'all') {
+      query.role = target; // fallback for specific roles
+    }
+
+    const users = await User.find(query);
     const tokens = users.map(u => u.fcmToken);
 
-    if (tokens.length === 0) return;
+    if (tokens.length === 0) {
+      console.log('No eligible users with FCM tokens found for target:', target);
+      return;
+    }
 
     const message = {
       notification: { title, body },
-      data,
+      data: { ...data, click_action: 'FLUTTER_NOTIFICATION_CLICK' },
       tokens,
+      android: {
+        priority: 'high',
+        notification: {
+          sound: 'default',
+          channelId: 'high_importance_channel',
+          priority: 'max',
+          visibility: 'public'
+        }
+      }
     };
 
-    const response = await admin.messaging().sendMulticast(message);
-    console.log(`${response.successCount} messages were sent successfully`);
+    const response = await admin.messaging().sendEachForMulticast(message);
+    console.log(`${response.successCount} messages were sent successfully to ${target}`);
     return response;
   } catch (error) {
     console.error('Error broadcasting message:', error);

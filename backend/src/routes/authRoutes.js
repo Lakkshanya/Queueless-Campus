@@ -3,8 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Service from '../models/Service.js';
+import Counter from '../models/Counter.js';
 import { generateOTP, sendOTPEmail, sendSuccessEmail } from '../utils/otpService.js';
 import { auth } from '../middleware/auth.js';
+import { sendNotification } from '../utils/notificationService.js';
 
 import fs from 'fs';
 
@@ -22,7 +24,23 @@ router.post('/signup', async (req, res) => {
     
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      if (existingUser.isVerified) {
+        return res.status(400).json({ message: 'Email already registered' });
+      } else {
+        // User exists but not verified - update info and resend OTP
+        const hashedPassword = await bcrypt.hash(password, 12);
+        const otp = generateOTP();
+        const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+        existingUser.name = name;
+        existingUser.password = hashedPassword;
+        existingUser.role = role || 'student';
+        existingUser.otp = { code: otp, expiry: otpExpiry };
+        
+        await existingUser.save();
+        await sendOTPEmail(email, otp);
+        return res.status(200).json({ message: 'User already registered but unverified. New OTP sent.', email });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -119,16 +137,13 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    const populatedUser = await User.findById(user._id)
+      .populate('assignedServices', 'name prefix description timePerStudent')
+      .populate('assignedCounter', 'number status');
+
     res.status(200).json({
       token,
-      user: { 
-        id: user._id, 
-        name: user.name, 
-        email: user.email, 
-        role: user.role,
-        profileCompleted: user.profileCompleted,
-        assignedCounter: user.assignedCounter 
-      }
+      user: populatedUser
     });
   } catch (error) {
     res.status(500).json({ message: 'Login failed', error: error.message });
@@ -138,7 +153,10 @@ router.post('/login', async (req, res) => {
 // GET /profile alias for /me
 router.get(['/me', '/profile'], auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password -otp');
+    const user = await User.findById(req.user.id)
+      .select('-password -otp')
+      .populate('assignedServices', 'name prefix description timePerStudent')
+      .populate('assignedCounter', 'number status');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.status(200).json(user);
   } catch (error) {
@@ -213,6 +231,16 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+// GET /users (Admin Only - used for promoting to staff)
+router.get('/users', auth, async (req, res) => {
+  try {
+    const users = await User.find({}, 'name email role department isVerified').sort({ name: 1 });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+  }
+});
+
 // GET /staff (Admin/Core requirement)
 router.get('/staff', auth, async (req, res) => {
   try {
@@ -235,9 +263,49 @@ router.post('/assign-services', auth, async (req, res) => {
     }
     staffMember.assignedServices = serviceIds;
     await staffMember.save();
+
+    // Ensure all assigned services are linked to the staff member's current counter
+    if (staffMember.assignedCounter) {
+      await Service.updateMany(
+        { _id: { $in: serviceIds } },
+        { assignedCounter: staffMember.assignedCounter }
+      );
+      
+      // Also update the counter's service list for consistency
+      await Counter.findByIdAndUpdate(staffMember.assignedCounter, {
+        $addToSet: { services: { $each: serviceIds } }
+      });
+    } else if (serviceIds && serviceIds.length > 0) {
+      // Auto-assign staff to the counter of the first service if they don't have one
+      const firstService = await Service.findById(serviceIds[0]);
+      if (firstService && firstService.assignedCounter) {
+         staffMember.assignedCounter = firstService.assignedCounter;
+         await staffMember.save();
+         await Counter.findByIdAndUpdate(firstService.assignedCounter, { staff: staffId });
+      }
+    }
+
+    // Trigger automated notification (Specific Requirement)
+    const service = await Service.findById(serviceIds[0]);
+    const serviceName = service ? service.name : 'a new service';
+    
+    await sendNotification(
+      staffId,
+      'Operational Assignment',
+      `${staffMember.name}, you have been assigned to ${serviceName}`
+    );
+
     const updated = await User.findById(staffId)
-      .populate('assignedServices', 'name prefix description')
+      .populate('assignedServices', 'name prefix description timePerStudent')
       .populate('assignedCounter', 'number status');
+
+    // [REAL-TIME] Emit socket events for instant update
+    const io = req.app.get('io');
+    if (io) {
+      io.to(staffId).emit('profileUpdated', updated);
+      io.emit('staffAssignmentChanged', { staffId, role: 'staff' });
+    }
+
     res.status(200).json({ message: 'Services assigned successfully', staff: updated });
   } catch (error) {
     res.status(500).json({ message: 'Failed to assign services', error: error.message });
@@ -261,7 +329,14 @@ router.post('/create-staff', auth, async (req, res) => {
     
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      if (existingUser.role === 'staff') {
+        return res.status(400).json({ message: 'User is already a staff member' });
+      }
+      existingUser.role = 'staff';
+      existingUser.isVerified = true; // Auto-verify administrative promotions
+      if (department) existingUser.department = department;
+      await existingUser.save();
+      return res.status(200).json({ message: 'User promoted to staff successfully', user: existingUser });
     }
 
     const hashedPassword = await bcrypt.hash('staff123', 12);
@@ -321,10 +396,49 @@ router.post('/assign-counter', auth, async (req, res) => {
        return res.status(404).json({ message: 'Staff not found' });
     }
     
+    const oldCounterId = staffMember.assignedCounter;
+    if (oldCounterId && oldCounterId.toString() !== counterId) {
+       await Counter.findByIdAndUpdate(oldCounterId, { staff: null });
+    }
+
     staffMember.assignedCounter = counterId;
     await staffMember.save();
 
-    res.status(200).json({ message: 'Counter assignment updated' });
+    if (counterId) {
+      await Counter.findByIdAndUpdate(counterId, { staff: staffId });
+      
+      // Synchronize all assigned services to point to this new counter
+      if (staffMember.assignedServices && staffMember.assignedServices.length > 0) {
+        await Service.updateMany(
+          { _id: { $in: staffMember.assignedServices } },
+          { assignedCounter: counterId }
+        );
+        
+        // Ensure the new counter knows about these services
+        await Counter.findByIdAndUpdate(counterId, {
+          $addToSet: { services: { $each: staffMember.assignedServices } }
+        });
+      }
+
+      await sendNotification(
+        staffId,
+        'Counter Unit Assigned',
+        'You have been allocated to a new Counter Unit. Please report to your terminal.'
+      );
+    }
+
+    const updatedUser = await User.findById(staffId)
+      .populate('assignedServices', 'name prefix description timePerStudent')
+      .populate('assignedCounter', 'number status');
+
+    // [REAL-TIME] Emit socket events for instant update
+    const io = req.app.get('io');
+    if (io) {
+      io.to(staffId).emit('profileUpdated', updatedUser);
+      io.emit('staffAssignmentChanged', { staffId, counterId: updatedUser.assignedCounter });
+    }
+
+    res.status(200).json({ message: 'Counter assignment updated', user: updatedUser });
   } catch (error) {
     res.status(500).json({ message: 'Counter assignment failed', error: error.message });
   }

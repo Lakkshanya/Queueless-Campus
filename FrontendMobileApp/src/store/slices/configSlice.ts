@@ -10,7 +10,8 @@ interface ConfigState {
 
 const initialState: ConfigState = {
   portalUrl: 'https://queueless-campus-lakkhanya-apr-2026-v2.localtunnel.me',
-  serverUrl: 'https://queueless-campus-lakkhanya-apr-2026-v2.localtunnel.me/api',
+  serverUrl:
+    'https://queueless-campus-lakkhanya-apr-2026-v2.localtunnel.me/api',
 };
 
 const configSlice = createSlice({
@@ -20,12 +21,14 @@ const configSlice = createSlice({
     setServerUrl: (state, action: PayloadAction<string>) => {
       let finalUrl = action.payload;
       if (!finalUrl.endsWith('/api') && !finalUrl.endsWith('/api/')) {
-        finalUrl = finalUrl.endsWith('/') ? `${finalUrl}api` : `${finalUrl}/api`;
+        finalUrl = finalUrl.endsWith('/')
+          ? `${finalUrl}api`
+          : `${finalUrl}/api`;
       }
-      
+
       state.serverUrl = finalUrl;
       updateApiBaseURL(finalUrl);
-      
+
       // Also update portal URL if it's a standard IP change
       if (finalUrl.includes(':5000/api')) {
         const base = finalUrl.split(':5000/api')[0];
@@ -34,7 +37,7 @@ const configSlice = createSlice({
         // For Cloudflare, portal usually doesn't have /api
         state.portalUrl = finalUrl.replace('/api', '');
       }
-      
+
       AsyncStorage.setItem('serverUrl', state.serverUrl);
       AsyncStorage.setItem('portalUrl', state.portalUrl);
     },

@@ -5,25 +5,24 @@ import StaffDashboard from '../screens/staff/StaffDashboard';
 import StaffNotificationScreen from '../screens/staff/StaffNotificationScreen';
 import StaffProfileScreen from '../screens/staff/StaffProfileScreen';
 import QueueHandlingScreen from '../screens/staff/QueueHandlingScreen';
-
 const Tab = createBottomTabNavigator();
-
 const StaffTabs = () => {
-  const getTabBarIcon = (route: any) => ({color, size}: any) => {
-    switch (route.name) {
-      case 'Dashboard':
-        return <LayoutDashboard size={size} color={color} />;
-      case 'Queue Handling':
-        return <ClipboardList size={size} color={color} />;
-      case 'Notifications':
-        return <Bell size={size} color={color} />;
-      case 'Profile':
-        return <User size={size} color={color} />;
-      default:
-        return null;
-    }
-  };
-
+  const getTabBarIcon =
+    (route: any) =>
+    ({color, size}: any) => {
+      switch (route.name) {
+        case 'Dashboard':
+          return <LayoutDashboard size={size} color={color} />;
+        case 'Queue Handling':
+          return <ClipboardList size={size} color={color} />;
+        case 'Notifications':
+          return <Bell size={size} color={color} />;
+        case 'Profile':
+          return <User size={size} color={color} />;
+        default:
+          return null;
+      }
+    };
   return (
     <Tab.Navigator
       id="staff-tabs"
@@ -41,17 +40,11 @@ const StaffTabs = () => {
         tabBarLabelStyle: {
           fontSize: 8,
           fontWeight: 'black',
-          textTransform: 'uppercase',
+          textTransform: '',
           letterSpacing: 1,
         },
         tabBarIcon: getTabBarIcon(route),
-      })}>
-      <Tab.Screen name="Dashboard" component={StaffDashboard} />
-      <Tab.Screen name="Queue Handling" component={QueueHandlingScreen} />
-      <Tab.Screen name="Notifications" component={StaffNotificationScreen} />
-      <Tab.Screen name="Profile" component={StaffProfileScreen} />
-    </Tab.Navigator>
+      })}><Tab.Screen name="Dashboard" component={StaffDashboard} /><Tab.Screen name="Queue Handling" component={QueueHandlingScreen} /><Tab.Screen name="Notifications" component={StaffNotificationScreen} /><Tab.Screen name="Profile" component={StaffProfileScreen} /></Tab.Navigator>
   );
 };
-
 export default StaffTabs;

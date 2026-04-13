@@ -37,11 +37,17 @@ export const sendOTPEmail = async (email, otp) => {
   };
 
   try {
+    console.log(`[AUTH] Attempting to send OTP to: ${email}`);
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent: ' + info.response);
+    console.log('Email sent successfully: ' + info.response);
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('CRITICAL EMAIL ERROR:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response
+    });
     return false;
   }
 };

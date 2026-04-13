@@ -11,9 +11,19 @@ export const useNotifications = () => {
       return;
     }
 
-    let messaging: any;
+    let getToken,
+      requestPermission,
+      onMessage,
+      onTokenRefresh,
+      AuthorizationStatus;
     try {
-      messaging = require('@react-native-firebase/messaging').default;
+      const messaging = require('@react-native-firebase/messaging').default;
+      const m = messaging();
+      getToken = () => m.getToken();
+      requestPermission = () => m.requestPermission();
+      onMessage = (cb: any) => m.onMessage(cb);
+      onTokenRefresh = (cb: any) => m.onTokenRefresh(cb);
+      AuthorizationStatus = messaging.AuthorizationStatus;
     } catch (e) {
       console.warn(
         'Firebase Messaging Native Module not found. Please rebuild the app.',
@@ -23,13 +33,13 @@ export const useNotifications = () => {
 
     const setupNotifications = async () => {
       try {
-        const authStatus = await messaging().requestPermission();
+        const authStatus = await requestPermission();
         const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+          authStatus === AuthorizationStatus.Authorized ||
+          authStatus === AuthorizationStatus.PROVISIONAL;
 
         if (enabled) {
-          const token = await messaging().getToken();
+          const token = await getToken();
           console.log('FCM Token:', token);
           await api.post('/auth/fcm-token', {fcmToken: token});
         }
@@ -40,7 +50,7 @@ export const useNotifications = () => {
 
     setupNotifications();
 
-    const unsubscribe = messaging().onMessage(async (remoteMessage: any) => {
+    const unsubscribe = onMessage(async (remoteMessage: any) => {
       Alert.alert(
         remoteMessage.notification?.title || 'Notification',
         remoteMessage.notification?.body || '',
@@ -48,13 +58,13 @@ export const useNotifications = () => {
       );
     });
 
-    const onTokenRefresh = messaging().onTokenRefresh((token: string) => {
+    const unsubscribeToken = onTokenRefresh((token: string) => {
       api.post('/auth/fcm-token', {fcmToken: token});
     });
 
     return () => {
       unsubscribe();
-      onTokenRefresh();
+      unsubscribeToken();
     };
   }, [user]);
 };

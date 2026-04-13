@@ -36,10 +36,9 @@ const server = spawn('node', ['--watch', 'src/server.js'], {
 });
 
 // 2. Start Cloudflare Tunnel (Stable)
-const cloudflaredPath = path.join(process.cwd(), 'cloudflared.exe');
 console.log(`📡 Opening Cloudflare Secure Tunnel...`);
 
-const tunnel = spawn(cloudflaredPath, ['tunnel', '--url', `http://localhost:${LOCAL_PORT}`], {
+const tunnel = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${LOCAL_PORT}`], {
   shell: true
 });
 

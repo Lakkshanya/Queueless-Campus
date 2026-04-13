@@ -5,10 +5,11 @@ const tokenSchema = new mongoose.Schema({
   student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   service: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
   counter: { type: mongoose.Schema.Types.ObjectId, ref: 'Counter' },
-  status: { type: String, enum: ['waiting', 'processing', 'completed', 'cancelled'], default: 'waiting', index: true },
+  status: { type: String, enum: ['waiting', 'serving', 'completed', 'cancelled'], default: 'waiting', index: true },
   queuePosition: { type: Number },
   estimatedWaitTime: { type: Number }, // in minutes
   bookedAt: { type: Date, default: Date.now, index: true },
+  startTime: { type: Date },
   completedAt: { type: Date }
 });
 

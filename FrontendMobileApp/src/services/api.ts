@@ -53,8 +53,10 @@ api.interceptors.response.use(
     } else if (error.request) {
       // Network Error or Timeout
       const attemptedUrl = api.defaults.baseURL || API_URL;
-      const isTunnel = attemptedUrl.includes('trycloudflare.com') || attemptedUrl.includes('localtunnel.me');
-      
+      const isTunnel =
+        attemptedUrl.includes('trycloudflare.com') ||
+        attemptedUrl.includes('localtunnel.me');
+
       if (isTunnel) {
         errorMessage = `Connection failed. The Network Tunnel may have expired or the backend server is not running.\n\nTarget: ${attemptedUrl}`;
       } else {

@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   phone: { type: String },
   department: { type: String },
   yearOfStudy: { type: String },
+  semester: { type: String },
+  specialization: { type: String },
   profilePhoto: { type: String }, // URL or Base64
   designation: { type: String },
   workingHours: { type: String },

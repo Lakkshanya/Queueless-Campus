@@ -34,7 +34,7 @@ const ProfileCompletionScreen = () => {
   const [collegeId, setCollegeId] = useState(user?.collegeId || '');
   const [phone, setPhone] = useState(user?.phone || '');
   const [department, setDepartment] = useState(user?.department || '');
-  
+
   // Student Specific
   const [yearOfStudy, setYearOfStudy] = useState(user?.yearOfStudy || '');
   const [batch, setBatch] = useState(user?.academicRecords?.batch || '');
@@ -42,7 +42,6 @@ const ProfileCompletionScreen = () => {
 
   // Staff Specific
   const [designation, setDesignation] = useState(user?.designation || '');
-
   const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
@@ -51,15 +50,13 @@ const ProfileCompletionScreen = () => {
       Alert.alert('Error', 'Please fill in all common fields');
       return;
     }
-
     if (user?.role === 'student' && (!yearOfStudy || !batch)) {
-        Alert.alert('Error', 'Please fill in your Year and Batch');
-        return;
+      Alert.alert('Error', 'Please fill in your Year and Batch');
+      return;
     }
-
     if (user?.role === 'staff' && !designation) {
-        Alert.alert('Error', 'Please fill in your Designation');
-        return;
+      Alert.alert('Error', 'Please fill in your Designation');
+      return;
     }
 
     setLoading(true);
@@ -72,8 +69,10 @@ const ProfileCompletionScreen = () => {
 
       if (user?.role === 'student') {
         payload.yearOfStudy = yearOfStudy;
-        payload.academicRecords = { ...user?.academicRecords, batch };
-        // section is an ID, so we only send if it's set properly or chosen
+        payload.academicRecords = {
+          ...user?.academicRecords,
+          batch,
+        };
       } else if (user?.role === 'staff') {
         payload.designation = designation;
       }
@@ -81,15 +80,17 @@ const ProfileCompletionScreen = () => {
       const response = await api.post('/auth/complete-profile', payload);
 
       // Update local Redux store
-      const updatedUser = {...user, ...response.data.user, token: user?.token};
+      const updatedUser = {
+        ...user,
+        ...response.data.user,
+        token: user?.token,
+      };
       dispatch(setAuth({user: updatedUser, token: user?.token || ''}));
 
       // Update legacy context for safety
       await legacyLogin(updatedUser);
 
-      Alert.alert('Success', 'Profile completed successfully!', [
-        { text: 'OK' },
-      ]);
+      Alert.alert('Success', 'Profile completed successfully!', [{text: 'OK'}]);
     } catch (error: any) {
       Alert.alert(
         'Update Failed',
@@ -107,106 +108,73 @@ const ProfileCompletionScreen = () => {
         paddingHorizontal: 24,
         paddingTop: 60,
         paddingBottom: 100,
-      }}>
-      <View className="items-center mb-8">
-        <Text className="text-primary text-3xl font-bold">
+      }}><View className="items-center mb-8"><Text className="text-primary text-3xl font-bold tracking-tight">
           Complete Profile
-        </Text>
-        <Text className="text-textSecondary mt-2">
-          Providing specialized details for {user?.role.toUpperCase()} access
-        </Text>
-      </View>
-
-      <View className="items-center mb-8 text-center">
-        <TouchableOpacity className="w-24 h-24 bg-card rounded-full border-2 border-primary items-center justify-center border-dashed">
-          <Camera color="#9A3412" size={32} />
-          <Text className="text-primary text-[10px] font-bold mt-1">
+        </Text><Text className="text-textSecondary mt-2">
+          Providing specialized details for {user?.role?.toUpperCase()} access
+        </Text></View><View className="items-center mb-8 text-center"><TouchableOpacity className="w-24 h-24 bg-card rounded-full border-2 border-primary items-center justify-center border-dashed"><Camera color="#9A3412" size={32} /><Text className="text-primary text-xs font-bold tracking-tight mt-1">
             UPLOAD
-          </Text>
-        </TouchableOpacity>
-        <Text className="text-textSecondary text-[10px] mt-2">
+          </Text></TouchableOpacity><Text className="text-textSecondary text-xs mt-2">
           Profile Photo (Optional)
-        </Text>
-      </View>
-
-      <View className="space-y-4">
+        </Text></View><View className="space-y-4">
         {/* Common Field: Phone */}
-        <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4">
-          <Phone color="#D6D3D1" size={20} />
-          <TextInput
+        <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4"><Phone color="#D6D3D1" size={20} /><TextInput
             placeholder="Phone Number"
             placeholderTextColor="#78716C"
             className="flex-1 ml-3 text-textPrimary text-base"
             value={phone}
             onChangeText={setPhone}
             keyboardType="phone-pad"
-          />
-        </View>
+          /></View>
 
         {/* Common Field: College/Employee ID */}
-        <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4">
-          <Info color="#D6D3D1" size={20} />
-          <TextInput
-            placeholder={user?.role === 'staff' ? "Employee ID" : "College ID / Reg No."}
+        <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4"><Info color="#D6D3D1" size={20} /><TextInput
+            placeholder={
+              user?.role === 'staff' ? 'Employee ID' : 'College ID / Reg No.'
+            }
             placeholderTextColor="#78716C"
             className="flex-1 ml-3 text-textPrimary text-base"
             value={collegeId}
             onChangeText={setCollegeId}
             autoCapitalize="characters"
-          />
-        </View>
+          /></View>
 
         {/* Common Field: Department */}
-        <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4">
-          <BookOpen color="#D6D3D1" size={20} />
-          <TextInput
+        <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4"><BookOpen color="#D6D3D1" size={20} /><TextInput
             placeholder="Department"
             placeholderTextColor="#78716C"
             className="flex-1 ml-3 text-textPrimary text-base"
             value={department}
             onChangeText={setDepartment}
-          />
-        </View>
+          /></View>
 
         {/* STUDENT SPECIFIC FIELDS */}
         {user?.role === 'student' && (
-            <>
-                <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4">
-                    <Calendar color="#D6D3D1" size={20} />
-                    <TextInput
-                        placeholder="Year of Study (e.g. 3rd Year)"
-                        placeholderTextColor="#78716C"
-                        className="flex-1 ml-3 text-textPrimary text-base"
-                        value={yearOfStudy}
-                        onChangeText={setYearOfStudy}
-                    />
-                </View>
-                <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4">
-                    <Layers color="#D6D3D1" size={20} />
-                    <TextInput
-                        placeholder="Admission Batch (e.g. 2021)"
-                        placeholderTextColor="#78716C"
-                        className="flex-1 ml-3 text-textPrimary text-base"
-                        value={batch}
-                        onChangeText={setBatch}
-                        keyboardType="numeric"
-                    />
-                </View>
-            </>
+          <><View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4"><Calendar color="#D6D3D1" size={20} /><TextInput
+                placeholder="Year of Study (e.g. 3rd Year)"
+                placeholderTextColor="#78716C"
+                className="flex-1 ml-3 text-textPrimary text-base"
+                value={yearOfStudy}
+                onChangeText={setYearOfStudy}
+              /></View><View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4"><Layers color="#D6D3D1" size={20} /><TextInput
+                placeholder="Admission Batch (e.g. 2021)"
+                placeholderTextColor="#78716C"
+                className="flex-1 ml-3 text-textPrimary text-base"
+                value={batch}
+                onChangeText={setBatch}
+                keyboardType="numeric"
+              /></View></>
         )}
 
         {/* STAFF SPECIFIC FIELDS */}
         {user?.role === 'staff' && (
-            <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4">
-                <Briefcase color="#D6D3D1" size={20} />
-                <TextInput
-                    placeholder="Designation (e.g. Professor)"
-                    placeholderTextColor="#78716C"
-                    className="flex-1 ml-3 text-textPrimary text-base"
-                    value={designation}
-                    onChangeText={setDesignation}
-                />
-            </View>
+          <View className="bg-card rounded-xl px-4 py-3 flex-row items-center border border-stone-800 mt-4"><Briefcase color="#D6D3D1" size={20} /><TextInput
+              placeholder="Designation (e.g. Professor)"
+              placeholderTextColor="#78716C"
+              className="flex-1 ml-3 text-textPrimary text-base"
+              value={designation}
+              onChangeText={setDesignation}
+            /></View>
         )}
 
         {/* Save Button */}
@@ -217,18 +185,11 @@ const ProfileCompletionScreen = () => {
           {loading ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <View className="flex-row items-center">
-              <Save color="#FFF" size={20} />
-              <Text className="text-white font-bold text-lg ml-2 uppercase tracking-widest">
+            <View className="flex-row items-center"><Save color="#FFF" size={20} /><Text className="text-white font-bold tracking-tight text-lg ml-2">
                 Finalize Profile
-              </Text>
-            </View>
+              </Text></View>
           )}
-        </TouchableOpacity>
-
-        <View className="h-10" />
-      </View>
-    </ScrollView>
+        </TouchableOpacity><View className="h-10" /></View></ScrollView>
   );
 };
 

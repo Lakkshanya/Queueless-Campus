@@ -9,8 +9,10 @@ class SocketService {
       return;
     }
 
-    const currentBaseUrl = api.defaults.baseURL as string || 'http://192.168.1.6:8989';
-    const dynamicSocketUrl = currentBaseUrl.replace('/api/', '').replace('/api', '');
+    const currentBaseUrl = (api.defaults.baseURL as string) || 'http://169.254.231.139:8989';
+    const dynamicSocketUrl = currentBaseUrl
+      .replace('/api/', '')
+      .replace('/api', '');
 
     this.socket = io(dynamicSocketUrl, {
       auth: {token},
@@ -25,6 +27,10 @@ class SocketService {
     this.socket.on('connect_error', (err: Error) => {
       console.error('Socket connection error:', err.message);
     });
+  }
+
+  getSocket() {
+    return this.socket;
   }
 
   disconnect() {

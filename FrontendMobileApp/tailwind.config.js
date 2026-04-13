@@ -15,8 +15,7 @@ module.exports = {
         textSecondary: '#D6D3D1',
       },
       fontFamily: {
-        serif: ['Times New Roman', 'serif'],
-        sans: ['Times New Roman', 'serif'], 
+        sans: ['system-ui', 'sans-serif'], 
       },
     },
   },
